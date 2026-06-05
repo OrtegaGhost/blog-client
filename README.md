@@ -258,7 +258,10 @@ blog-client/
 ## Git History
 
 ```
-* f349c74 (HEAD -> develop, origin/main, origin/develop, main) assets: update logo to circular version without tagline
+* 194946b (HEAD -> develop, origin/main, origin/develop, main) fix: translate all API error messages using backend error codes
+* bdb55da feat: add change-password page with Navbar link and full i18n
+* 61d2ef5 docs: update README with responsive design, blue theme and i18n changes
+* f349c74 assets: update logo to circular version without tagline
 * f79e9f0 feat: replace placeholder logo with official Blog's brand image
 * 0c1fefb feat: responsive design, Facebook blue theme, and ES/EN language selector
 * 355eeb7 docs: add comprehensive README with setup and execution instructions
