@@ -1,15 +1,15 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import UserAvatar from './UserAvatar';
+import { useAuth }  from '../context/AuthContext';
+import { useI18n }  from '../context/I18nContext';
+import UserAvatar   from './UserAvatar';
 
 /**
- * Top navigation bar — Facebook-style layout with yellow brand color.
- * Left: logo / brand name
- * Center: navigation tabs
- * Right: user info + logout
+ * Top navigation bar — Facebook-style with brand blue background.
+ * Left: logo  |  Center: nav tabs  |  Right: user + language toggle + logout
  */
 const Navbar = () => {
-  const { user, logout } = useAuth();
+  const { user, logout }       = useAuth();
+  const { lang, toggleLang, t } = useI18n();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -23,51 +23,65 @@ const Navbar = () => {
 
         {/* ── Left: Logo ── */}
         <Link to="/feed" className="flex items-center gap-2 flex-shrink-0">
-          <div className="w-10 h-10 bg-gray-900 rounded-full flex items-center justify-center">
+          <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
             <span className="text-brand font-extrabold text-lg leading-none">B</span>
           </div>
-          <span className="text-gray-900 font-extrabold text-xl hidden sm:block">Blog</span>
+          <span className="text-white font-extrabold text-xl hidden sm:block">Blog</span>
         </Link>
 
         {/* ── Center: Nav tabs ── */}
         <div className="flex items-center gap-1">
           <Link
             to="/feed"
-            className="flex flex-col items-center px-8 py-2 rounded-lg
-                       text-gray-800 hover:bg-black/10 transition-colors duration-150
-                       border-b-4 border-gray-900 group"
+            className="flex flex-col items-center px-6 sm:px-8 py-2 rounded-lg
+                       text-white hover:bg-white/10 transition-colors duration-150
+                       border-b-4 border-white"
           >
-            {/* Home icon */}
             <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
               <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
             </svg>
           </Link>
         </div>
 
-        {/* ── Right: User + logout ── */}
-        <div className="flex items-center gap-3 flex-shrink-0">
+        {/* ── Right: User + language + logout ── */}
+        <div className="flex items-center gap-2 flex-shrink-0">
           {user && (
             <div className="hidden sm:flex items-center gap-2">
               <UserAvatar user={user} size="sm" />
-              <span className="font-semibold text-gray-900 text-sm max-w-[120px] truncate">
+              <span className="font-semibold text-white text-sm max-w-[120px] truncate">
                 {user.name}
               </span>
             </div>
           )}
 
+          {/* Language toggle */}
+          <button
+            onClick={toggleLang}
+            className="flex items-center gap-1 bg-white/15 hover:bg-white/25
+                       text-white font-semibold text-sm px-3 py-2 rounded-lg
+                       transition-colors duration-150"
+            title="Switch language"
+          >
+            <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+            </svg>
+            <span className="uppercase text-xs font-bold">{lang === 'en' ? 'EN' : 'ES'}</span>
+          </button>
+
+          {/* Logout */}
           <button
             onClick={handleLogout}
-            className="flex items-center gap-1 bg-black/10 hover:bg-black/20
-                       text-gray-900 font-semibold text-sm px-3 py-2 rounded-lg
+            className="flex items-center gap-1 bg-white/15 hover:bg-white/25
+                       text-white font-semibold text-sm px-3 py-2 rounded-lg
                        transition-colors duration-150"
-            title="Log out"
+            title={t('nav.logout')}
           >
-            {/* Logout icon */}
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                 d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
             </svg>
-            <span className="hidden sm:block">Log out</span>
+            <span className="hidden sm:block">{t('nav.logout')}</span>
           </button>
         </div>
 

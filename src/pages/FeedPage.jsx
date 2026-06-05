@@ -1,28 +1,28 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { feedApi } from '../services/api';
-import useSocket from '../hooks/useSocket';
-import Navbar from '../components/Navbar';
-import CommentCard from '../components/CommentCard';
+import { useAuth }  from '../context/AuthContext';
+import { useI18n }  from '../context/I18nContext';
+import { feedApi }  from '../services/api';
+import useSocket     from '../hooks/useSocket';
+import Navbar        from '../components/Navbar';
+import CommentCard   from '../components/CommentCard';
 import CreateCommentBox from '../components/CreateCommentBox';
-import UserAvatar from '../components/UserAvatar';
+import UserAvatar    from '../components/UserAvatar';
 
 /**
  * Main feed page — Facebook timeline layout.
- * Left sidebar: user profile card
+ * Left sidebar: user profile card (hidden on mobile)
  * Center: comment list with real-time updates via Socket.io
  */
 const FeedPage = () => {
-  const { user } = useAuth();
+  const { user }  = useAuth();
+  const { t }     = useI18n();
   const [comments, setComments] = useState([]);
-  const [loading, setLoading]  = useState(true);
-  const [error, setError]      = useState('');
+  const [loading, setLoading]   = useState(true);
+  const [errorKey, setErrorKey] = useState('');
 
-  // Add incoming real-time comments to the top of the feed
   const handleNewComment = useCallback((comment) => {
     setComments((prev) => {
-      // Avoid duplicates in case the POST response already added it
       if (prev.some((c) => c.id === comment.id)) return prev;
       return [comment, ...prev];
     });
@@ -33,7 +33,7 @@ const FeedPage = () => {
   useEffect(() => {
     feedApi.getComments()
       .then(({ data }) => setComments(data.comments))
-      .catch(() => setError('Could not load the feed. Please refresh.'))
+      .catch(() => setErrorKey('feed.errorLoad'))
       .finally(() => setLoading(false));
   }, []);
 
@@ -44,6 +44,8 @@ const FeedPage = () => {
     });
   };
 
+  const myCount = comments.filter((c) => c.user?.id === user?.id).length;
+
   return (
     <div className="min-h-screen bg-gray-100">
       <Navbar />
@@ -52,7 +54,7 @@ const FeedPage = () => {
       <main className="pt-16 pb-8">
         <div className="max-w-5xl mx-auto px-4 flex gap-4 items-start">
 
-          {/* ── Left sidebar ── */}
+          {/* ── Left sidebar (desktop only) ── */}
           <aside className="hidden md:flex flex-col gap-2 w-72 flex-shrink-0 sticky top-20">
 
             {/* User profile card */}
@@ -65,13 +67,13 @@ const FeedPage = () => {
               <div className="w-full border-t border-gray-100 pt-3">
                 <div className="flex justify-around text-center">
                   <div>
-                    <p className="font-bold text-gray-900 text-lg">{comments.filter(c => c.user?.id === user?.id).length}</p>
-                    <p className="text-gray-500 text-xs">Comments</p>
+                    <p className="font-bold text-gray-900 text-lg">{myCount}</p>
+                    <p className="text-gray-500 text-xs">{t('feed.myComments')}</p>
                   </div>
                   <div className="border-l border-gray-100" />
                   <div>
                     <p className="font-bold text-gray-900 text-lg">{comments.length}</p>
-                    <p className="text-gray-500 text-xs">Total posts</p>
+                    <p className="text-gray-500 text-xs">{t('feed.totalPosts')}</p>
                   </div>
                 </div>
               </div>
@@ -84,12 +86,12 @@ const FeedPage = () => {
                 className="flex items-center gap-3 px-3 py-2.5 rounded-lg
                            hover:bg-gray-100 transition-colors duration-150"
               >
-                <span className="w-9 h-9 bg-gray-200 rounded-full flex items-center justify-center">
-                  <svg className="w-5 h-5 text-gray-700" fill="currentColor" viewBox="0 0 24 24">
+                <span className="w-9 h-9 bg-brand/10 rounded-full flex items-center justify-center">
+                  <svg className="w-5 h-5 text-brand" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
                   </svg>
                 </span>
-                <span className="font-medium text-gray-800">Home Feed</span>
+                <span className="font-medium text-gray-800">{t('feed.homeFeed')}</span>
               </Link>
             </div>
 
@@ -104,7 +106,9 @@ const FeedPage = () => {
             {/* Feed label */}
             <div className="flex items-center gap-3">
               <div className="flex-1 h-px bg-gray-300" />
-              <span className="text-gray-500 text-xs font-medium uppercase tracking-wide">Latest</span>
+              <span className="text-gray-500 text-xs font-medium uppercase tracking-wide">
+                {t('feed.latest')}
+              </span>
               <div className="flex-1 h-px bg-gray-300" />
             </div>
 
@@ -116,24 +120,24 @@ const FeedPage = () => {
             )}
 
             {/* Error state */}
-            {error && !loading && (
+            {errorKey && !loading && (
               <div className="card p-6 text-center">
-                <p className="text-red-500">{error}</p>
+                <p className="text-red-500">{t(errorKey)}</p>
                 <button
                   onClick={() => window.location.reload()}
                   className="btn-primary mt-3 text-sm"
                 >
-                  Retry
+                  {t('feed.retry')}
                 </button>
               </div>
             )}
 
             {/* Empty state */}
-            {!loading && !error && comments.length === 0 && (
+            {!loading && !errorKey && comments.length === 0 && (
               <div className="card p-10 text-center">
                 <p className="text-4xl mb-3">💬</p>
-                <p className="text-gray-700 font-semibold text-lg">No comments yet</p>
-                <p className="text-gray-400 text-sm mt-1">Be the first to share something!</p>
+                <p className="text-gray-700 font-semibold text-lg">{t('feed.noComments')}</p>
+                <p className="text-gray-400 text-sm mt-1">{t('feed.noCommentsHint')}</p>
               </div>
             )}
 

@@ -1,14 +1,16 @@
 import { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
-import UserAvatar from './UserAvatar';
-import { feedApi } from '../services/api';
+import { useAuth }  from '../context/AuthContext';
+import { useI18n }  from '../context/I18nContext';
+import UserAvatar   from './UserAvatar';
+import { feedApi }  from '../services/api';
 
 /**
  * "What's on your mind?" style comment creation box.
  * @param {{ onCommentCreated: (comment: object) => void }} props
  */
 const CreateCommentBox = ({ onCommentCreated }) => {
-  const { user } = useAuth();
+  const { user }   = useAuth();
+  const { t }      = useI18n();
   const [content, setContent]   = useState('');
   const [loading, setLoading]   = useState(false);
   const [error, setError]       = useState('');
@@ -17,7 +19,6 @@ const CreateCommentBox = ({ onCommentCreated }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!content.trim()) return;
-
     setLoading(true);
     setError('');
     try {
@@ -26,11 +27,13 @@ const CreateCommentBox = ({ onCommentCreated }) => {
       setContent('');
       setExpanded(false);
     } catch (err) {
-      setError(err.response?.data?.message || 'Could not post comment. Try again.');
+      setError(err.response?.data?.message || t('create.error'));
     } finally {
       setLoading(false);
     }
   };
+
+  const placeholder = t('create.placeholder', { name: user?.name?.split(' ')[0] || '' });
 
   return (
     <div className="card p-4">
@@ -43,7 +46,7 @@ const CreateCommentBox = ({ onCommentCreated }) => {
                       rounded-full px-4 py-3 text-gray-500 text-[15px]
                       ${expanded ? 'hidden' : 'block'}`}
         >
-          What&apos;s on your mind, {user?.name?.split(' ')[0]}?
+          {placeholder}
         </button>
 
         {expanded && (
@@ -51,7 +54,7 @@ const CreateCommentBox = ({ onCommentCreated }) => {
             autoFocus
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            placeholder={`What's on your mind, ${user?.name?.split(' ')[0]}?`}
+            placeholder={placeholder}
             rows={3}
             maxLength={1000}
             className="flex-1 bg-transparent text-gray-900 text-[15px] resize-none
@@ -77,14 +80,14 @@ const CreateCommentBox = ({ onCommentCreated }) => {
                 onClick={() => { setExpanded(false); setContent(''); setError(''); }}
                 className="btn-ghost text-sm py-1.5 px-4"
               >
-                Cancel
+                {t('create.cancel')}
               </button>
               <button
                 onClick={handleSubmit}
                 disabled={!content.trim() || loading}
                 className="btn-primary text-sm py-1.5 px-5"
               >
-                {loading ? 'Posting…' : 'Post'}
+                {loading ? t('create.posting') : t('create.post')}
               </button>
             </div>
           </div>

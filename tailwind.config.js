@@ -5,10 +5,10 @@ export default {
     extend: {
       colors: {
         brand: {
-          DEFAULT: '#F7B928',
-          hover:   '#E6A817',
-          dark:    '#D4960F',
-          light:   '#FEF9E7',
+          DEFAULT: '#1877F2',
+          hover:   '#166FE5',
+          dark:    '#0D61CE',
+          light:   '#E7F3FF',
         },
       },
       fontFamily: {
