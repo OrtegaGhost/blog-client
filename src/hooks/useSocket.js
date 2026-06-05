@@ -14,7 +14,7 @@ const useSocket = (onNewComment, enabled = true) => {
   useEffect(() => {
     if (!enabled) return;
 
-    socketRef.current = io(SOCKET_URL, { transports: ['websocket'] });
+    socketRef.current = io(SOCKET_URL);
 
     socketRef.current.on('comment:new', (comment) => {
       onNewComment(comment);
