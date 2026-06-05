@@ -71,6 +71,12 @@ const ProfilePage = () => {
       const { data } = await authApi.updateProfilePhoto(form);
       setProfile((prev) => ({ ...prev, profilePhoto: data.profilePhoto }));
       updateUser({ profilePhoto: data.profilePhoto });
+      const patch = (u) => u?.id === me.id ? { ...u, profilePhoto: data.profilePhoto } : u;
+      setComments((prev) => prev.map((c) => ({
+        ...c,
+        user: patch(c.user),
+        replies: c.replies?.map((r) => ({ ...r, user: patch(r.user) })),
+      })));
     } catch { /* silenciar — el usuario puede reintentar */ }
     finally {
       setPhotoUploading(false);
