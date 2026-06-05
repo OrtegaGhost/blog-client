@@ -16,7 +16,6 @@ Consumes the [blog-api](https://github.com/OrtegaGhost/blog-api) REST API.
 - [Compilation](#compilation)
 - [Execution](#execution)
 - [Application Structure](#application-structure)
-- [Pages and Features](#pages-and-features)
 - [Project Structure](#project-structure)
 - [Git History](#git-history)
 - [AI Methodology](#ai-methodology)
@@ -34,6 +33,7 @@ Consumes the [blog-api](https://github.com/OrtegaGhost/blog-api) REST API.
 | HTTP client | Axios |
 | Real-time | Socket.io client 4 |
 | State | React Context API |
+| i18n | Custom I18nContext (ES / EN) |
 | Runtime | Node.js 20+ |
 
 ---
@@ -102,8 +102,8 @@ Output summary after a successful build:
 
 ```
 dist/index.html          ~0.45 kB
-dist/assets/index.css    ~17 kB  (gzip: ~4.5 kB)
-dist/assets/index.js     ~335 kB (gzip: ~108 kB)
+dist/assets/index.css    ~16 kB  (gzip: ~4 kB)
+dist/assets/index.js     ~342 kB (gzip: ~110 kB)
 ```
 
 To preview the production build locally:
@@ -125,6 +125,8 @@ npm run dev
 ```
 
 Available at `http://localhost:5173`.
+
+> If port 5173 is already in use, Vite will automatically try 5174. Make sure the backend's `CORS_ORIGIN` includes the active port.
 
 Make sure the backend is already running before opening the app.
 
@@ -170,8 +172,9 @@ The app has three main pages, all connecting to the blog-api backend.
 
 Facebook-style two-panel layout:
 
-- **Left panel** — brand logo and tagline
+- **Left panel** — official brand logo and tagline
 - **Right panel** — login form (username + password)
+- Language toggle (ES / EN) in the top-right corner
 - On success: redirects to `/feed` and stores the JWT in `localStorage`
 - Links to the register page
 
@@ -181,6 +184,8 @@ Centered card with full registration form:
 
 - Fields: full name, email, username, password
 - Profile photo upload with image preview
+- Responsive layout: name/email fields stack on mobile, side-by-side on larger screens
+- Language toggle (ES / EN) in the top-right corner
 - Validates inputs client-side before submitting
 - On success: redirects to `/login`
 
@@ -188,12 +193,27 @@ Centered card with full registration form:
 
 Main timeline page (requires authentication):
 
-- **Navbar** — yellow brand bar with logo, home icon and logout button
-- **Left sidebar** — authenticated user's profile card with comment stats
+- **Navbar** — Facebook blue (`#1877F2`) fixed bar with brand logo, home tab, language toggle (ES / EN) and logout button
+- **Left sidebar** — authenticated user's profile card with comment stats (hidden on mobile)
 - **Feed center**:
-  - "What's on your mind?" expandible comment creation box
+  - Expandable comment creation box with placeholder in the active language
   - Real-time comment list — new comments appear instantly via Socket.io without refreshing
   - Each card shows author avatar, name, username, relative timestamp and Like/Comment buttons
+
+### Internationalisation (i18n)
+
+The app ships with full Spanish and English translations via a lightweight custom context (`I18nContext`):
+
+- Language persists in `localStorage` across sessions
+- Toggling language updates the entire UI instantly with no page reload
+- Default language: **Spanish (ES)**
+- All user-facing strings are translated: placeholders, buttons, labels, error messages and empty states
+
+### Responsive Design
+
+- **Mobile (< 640 px)**: single-column layout, sidebar hidden, Navbar condensed
+- **Tablet (640 px – 1024 px)**: adjusted padding and form rows
+- **Desktop (> 1024 px)**: full Facebook-style two-column layout with sidebar
 
 ---
 
@@ -202,32 +222,33 @@ Main timeline page (requires authentication):
 ```
 blog-client/
 ├── public/
-│   └── favicon.svg
+│   └── logo.png                      # Official brand logo
 ├── src/
 │   ├── components/
-│   │   ├── CommentCard.jsx       # Individual comment — Facebook post style
-│   │   ├── CreateCommentBox.jsx  # "What's on your mind?" expandible input
-│   │   ├── Navbar.jsx            # Fixed top bar with yellow brand color
-│   │   ├── ProtectedRoute.jsx    # Redirects unauthenticated users to /login
-│   │   └── UserAvatar.jsx        # Photo or initials fallback avatar
+│   │   ├── CommentCard.jsx            # Individual comment — Facebook post style
+│   │   ├── CreateCommentBox.jsx       # Expandable "What's on your mind?" input
+│   │   ├── Navbar.jsx                 # Fixed top bar — blue brand + language toggle
+│   │   ├── ProtectedRoute.jsx         # Redirects unauthenticated users to /login
+│   │   └── UserAvatar.jsx             # Photo or initials fallback avatar
 │   ├── context/
-│   │   └── AuthContext.jsx       # JWT auth state + localStorage persistence
+│   │   ├── AuthContext.jsx            # JWT auth state + localStorage persistence
+│   │   └── I18nContext.jsx            # ES/EN translations + language toggle
 │   ├── hooks/
-│   │   └── useSocket.js          # Socket.io connection lifecycle hook
+│   │   └── useSocket.js               # Socket.io connection lifecycle hook
 │   ├── pages/
-│   │   ├── FeedPage.jsx          # Main timeline with real-time comments
-│   │   ├── LoginPage.jsx         # Two-panel login layout
-│   │   └── RegisterPage.jsx      # Registration form with photo upload
+│   │   ├── FeedPage.jsx               # Main timeline with real-time comments
+│   │   ├── LoginPage.jsx              # Two-panel login layout
+│   │   └── RegisterPage.jsx           # Registration form with photo upload
 │   ├── services/
-│   │   └── api.js                # Axios instance + auth/feed API calls
+│   │   └── api.js                     # Axios instance + auth/feed API calls
 │   ├── utils/
-│   │   ├── storage.js            # localStorage helpers (token + user)
-│   │   └── timeAgo.js            # Relative time formatter (e.g. "3m ago")
-│   ├── App.jsx                   # Router + AuthProvider wrapper
-│   ├── index.css                 # Tailwind directives + global component classes
-│   └── main.jsx                  # React DOM root
+│   │   ├── storage.js                 # localStorage helpers (token + user)
+│   │   └── timeAgo.js                 # Relative time formatter (e.g. "3m ago")
+│   ├── App.jsx                        # Router + I18nProvider + AuthProvider
+│   ├── index.css                      # Tailwind directives + global component classes
+│   └── main.jsx                       # React DOM root
 ├── .env.example
-├── tailwind.config.js            # Custom yellow brand color (#F7B928)
+├── tailwind.config.js                 # Facebook blue brand color (#1877F2)
 ├── vite.config.js
 └── package.json
 ```
@@ -237,6 +258,10 @@ blog-client/
 ## Git History
 
 ```
+* f349c74 (HEAD -> develop, origin/main, origin/develop, main) assets: update logo to circular version without tagline
+* f79e9f0 feat: replace placeholder logo with official Blog's brand image
+* 0c1fefb feat: responsive design, Facebook blue theme, and ES/EN language selector
+* 355eeb7 docs: add comprehensive README with setup and execution instructions
 * 4488a59 feat: initial frontend setup with full UI implementation
 ```
 
@@ -257,22 +282,25 @@ The developer acted as **tech lead and architect**. Claude Code (claude-sonnet-4
 
 | Phase | Human role | AI role |
 |---|---|---|
-| Requirements analysis | Defined UI/UX direction (Facebook-style, yellow theme) | Proposed component structure and data flow |
+| Requirements analysis | Defined UI/UX direction (Facebook-style, blue theme, responsive, bilingual) | Proposed component structure and data flow |
 | Architecture design | Approved Context/hooks/pages separation | Generated initial file structure |
 | Code generation | Reviewed every component before acceptance | Generated JSX, hooks and service layer |
-| Styling | Defined color palette and layout references | Implemented Tailwind classes and responsive breakpoints |
+| i18n design | Defined ES/EN as target languages and default (ES) | Implemented I18nContext with translation dictionaries |
+| Styling | Defined Facebook blue palette and responsive breakpoints | Implemented Tailwind classes |
+| Branding | Provided official logo asset | Integrated logo across Navbar, Login and Register |
 | Documentation | Reviewed and approved this README | Generated initial draft |
 
 ### Tools used
 
 | Tool | Model | Purpose |
 |---|---|---|
-| Claude Code | claude-sonnet-4-6 | Component generation, state management, API integration, documentation |
+| Claude Code | claude-sonnet-4-6 | Component generation, state management, API integration, i18n, documentation |
 | Claude Code | claude-haiku-4-5 | Quick lookups and clarifications |
 
 ### Guarantees
 
 - Every component was understood and validated by the developer before committing
-- The developer defined the UI reference (Facebook layout, yellow color scheme)
+- The developer defined the UI reference (Facebook layout, blue color scheme, ES/EN language)
+- The developer provided the official brand logo
 - AI did not decide routing strategy, state management approach, or visual design
 - The developer approved the final look before the code was committed
