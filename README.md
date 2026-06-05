@@ -140,28 +140,16 @@ npm run preview
 
 ### Docker (serve built files with Nginx)
 
-Add a `Dockerfile` at the root of this project:
-
-```dockerfile
-FROM node:20-alpine AS builder
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci
-COPY . .
-RUN npm run build
-
-FROM nginx:alpine
-COPY --from=builder /app/dist /usr/share/nginx/html
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
-```
-
-Then build and run:
+A multi-stage `Dockerfile` is included at the root of this project. It builds the Vite app and serves it with Nginx with SPA fallback routing.
 
 ```bash
 docker build -t blog-client .
 docker run -p 8080:80 blog-client
 ```
+
+The app will be available at `http://localhost:8080`.
+
+> **Note:** Set `VITE_API_URL` and `VITE_SOCKET_URL` as build args if the backend runs on a different host.
 
 ---
 
@@ -301,11 +289,42 @@ blog-client/
 ## Git History
 
 ```
-* (HEAD -> main) docs: update README with settings page, dark mode and profile photo upload
-* 68f28a8 feat: settings page with dark mode, change name and delete account
-* 4d32a5d feat: UI/UX improvements — navbar, profile photo upload, activity sidebar
-* 86eabae docs: update README with profile page, edit/delete and threading features
-* 649ea56 feat: add profile page, comment edit/delete and reply threading
+*   004c759 (HEAD -> main) Merge develop into main
+|\
+| * c3e9aa0 feat: forgot password flow with security questions
+* |   f11a038 Merge develop into main
+|\ \
+| |/
+| * 78d972a fix: sync author photo in feed and profile comments on upload
+* |   f97bb31 Merge branch 'develop'
+|\ \
+| |/
+| * 4f23f54 chore: remove dead ChangePasswordPage - functionality moved to /settings
+* |   8883311 Merge branch 'develop'
+|\ \
+| |/
+| * f3ea3d9 fix: use logo.png as browser tab favicon
+* |   e3671fa Merge branch 'develop'
+|\ \
+| |/
+| * 75181d3 docs: update README with settings page, dark mode and profile photo upload
+* |   c0cf719 Merge branch 'develop'
+|\ \
+| |/
+| * 68f28a8 feat: settings page with dark mode, change name and delete account
+* |   fd10627 Merge branch 'develop'
+|\ \
+| |/
+| * 4d32a5d feat: UI/UX improvements - navbar, profile photo upload, activity sidebar
+* |   12f87ce merge: develop -> main (README update)
+|\ \
+| |/
+| * 86eabae docs: update README with profile page, edit/delete and threading features
+* |   f77e601 merge: develop -> main (threading, edit/delete, profile page)
+|\ \
+| |/
+| * 649ea56 feat: add profile page, comment edit/delete and reply threading
+|/
 * 1780d5b refactor: fix likes, enable comment button, i18n timeAgo, lazy images, Spanish comments
 * ba3c533 fix: allow polling fallback in Socket.io to avoid StrictMode race condition
 * 4ea71ea fix: store token before calling /me to avoid 400 on login
