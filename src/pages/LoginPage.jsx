@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { authApi } from '../services/api';
 import { useAuth }  from '../context/AuthContext';
 import { useI18n }  from '../context/I18nContext';
+import { storage }  from '../utils/storage';
 
 /**
  * Login page — Facebook-style two-panel layout.
@@ -27,10 +28,12 @@ const LoginPage = () => {
     setError('');
     try {
       const { data: tokenData } = await authApi.login(form);
+      storage.setToken(tokenData.access_token); // set before /me so the interceptor picks it up
       const { data: userData }  = await authApi.me();
       login(tokenData, userData);
       navigate('/feed');
     } catch (err) {
+      storage.clear(); // discard any partially stored token on failure
       const code = err.response?.data?.error;
       if (code === 'INVALID_CREDENTIALS') setError(t('login.invalidCredentials'));
       else if (code && t(`err.${code}`) !== `err.${code}`) setError(t(`err.${code}`));
