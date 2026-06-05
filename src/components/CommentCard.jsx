@@ -52,9 +52,13 @@ const CommentCard = ({ comment, onCommentCreated, onCommentUpdated, onCommentDel
   const [editLoading, setEditLoading] = useState(false);
   const [editError, setEditError]     = useState('');
 
-  // Confirmacion de borrado
+  // Confirmacion de borrado — comentario raiz
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
+
+  // Confirmacion de borrado — respuesta (guarda el id de la reply pendiente)
+  const [confirmReplyId, setConfirmReplyId] = useState(null);
+  const [deleteReplyLoading, setDeleteReplyLoading] = useState(false);
 
   const replyRef    = useRef(null);
   const editRef     = useRef(null);
@@ -326,18 +330,45 @@ const CommentCard = ({ comment, onCommentCreated, onCommentUpdated, onCommentDel
                   {reply.content}
                 </p>
               </div>
-              {/* Borrado de respuesta propia */}
+              {/* Borrado de respuesta propia — con confirmacion */}
               {me?.id === reply.user?.id && (
-                <button
-                  onClick={() => { feedApi.deleteComment(reply.id).then(() => onCommentDeleted?.(reply.id, reply.parentId)); }}
-                  className="flex-shrink-0 self-start p-1 text-gray-300 hover:text-red-400 transition-colors"
-                  title={t('comment.delete')}
-                >
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
+                confirmReplyId === reply.id ? (
+                  <div className="flex-shrink-0 self-start flex items-center gap-1 mt-1">
+                    <button
+                      disabled={deleteReplyLoading}
+                      onClick={async () => {
+                        setDeleteReplyLoading(true);
+                        try {
+                          await feedApi.deleteComment(reply.id);
+                          onCommentDeleted?.(reply.id, reply.parentId);
+                        } finally {
+                          setDeleteReplyLoading(false);
+                          setConfirmReplyId(null);
+                        }
+                      }}
+                      className="text-xs px-2 py-0.5 rounded bg-red-500 text-white hover:bg-red-600 disabled:opacity-50 transition-colors"
+                    >
+                      {deleteReplyLoading ? '…' : t('comment.yes')}
+                    </button>
+                    <button
+                      onClick={() => setConfirmReplyId(null)}
+                      className="text-xs px-2 py-0.5 rounded bg-gray-200 text-gray-600 hover:bg-gray-300 transition-colors"
+                    >
+                      {t('comment.no')}
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setConfirmReplyId(reply.id)}
+                    className="flex-shrink-0 self-start p-1 text-gray-300 hover:text-red-400 transition-colors"
+                    title={t('comment.delete')}
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                )
               )}
             </div>
           ))}

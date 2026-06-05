@@ -16,12 +16,18 @@ api.interceptors.request.use((config) => {
 // --- Autenticacion -------------------------------------------------------
 
 export const authApi = {
-  login:          (data)     => api.post('/login', data),
-  register:       (formData) => api.post('/register', formData, {
+  login:               (data)     => api.post('/login', data),
+  register:            (formData) => api.post('/register', formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
   }),
-  me:             ()         => api.get('/me'),
-  changePassword: (data)     => api.put('/change-password', data),
+  me:                  ()         => api.get('/me'),
+  changePassword:      (data)     => api.put('/change-password', data),
+  updateProfilePhoto:  (formData) => api.put('/me/photo', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  }),
+  updateCoverPhoto:    (formData) => api.put('/me/cover', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  }),
 };
 
 // --- Feed ----------------------------------------------------------------

@@ -23,18 +23,19 @@ const Navbar = () => {
 
         {/* ── Left: Logo ── */}
         <Link to="/feed" className="flex items-center flex-shrink-0">
-          <div className="bg-white rounded-lg px-2 py-1">
-            <img src="/logo.png" alt="Blog's" className="h-9 w-auto" />
+          <div className="w-10 h-10 rounded-full overflow-hidden bg-white shadow-sm flex-shrink-0">
+            <img src="/logo.png" alt="Blog's" className="w-full h-full object-cover" />
           </div>
         </Link>
 
         {/* ── Center: Nav tabs ── */}
-        <div className="flex items-center gap-1">
+        <div className="flex self-stretch items-stretch gap-1">
           <Link
             to="/feed"
-            className="flex flex-col items-center px-6 sm:px-8 py-2 rounded-lg
+            className="flex items-center justify-center px-8 sm:px-12 self-stretch
                        text-white hover:bg-white/10 transition-colors duration-150
-                       border-b-4 border-white"
+                       border-b-4 border-white
+                       [filter:drop-shadow(0_0_6px_rgba(255,255,255,0.5))]"
           >
             <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
               <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
