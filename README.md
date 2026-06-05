@@ -166,7 +166,7 @@ docker run -p 8080:80 blog-client
 
 ## Application Structure
 
-The app has four pages, all connecting to the blog-api backend.
+The app has five pages, all connecting to the blog-api backend.
 
 ### Login
 
@@ -193,12 +193,27 @@ Centered card with full registration form:
 
 Main timeline page (requires authentication):
 
-- **Navbar** — Facebook blue (`#1877F2`) fixed bar with brand logo, home tab, language toggle (ES / EN), change-password link and logout button
+- **Navbar** — Facebook blue (`#1877F2`) fixed bar with brand logo, home tab, language toggle (ES / EN), change-password link and logout button. The user avatar links to their own profile.
 - **Left sidebar** — authenticated user's profile card with comment stats (hidden on mobile)
 - **Feed center**:
-  - Expandable comment creation box with placeholder in the active language
-  - Real-time comment list — new comments appear instantly via Socket.io (polling → WebSocket upgrade) without refreshing
-  - Each card shows author avatar, name, username, relative timestamp and Like/Comment buttons
+  - Expandable comment creation box at the top
+  - Real-time comment list — new comments, edits and deletes appear instantly via Socket.io (`comment:new`, `comment:updated`, `comment:deleted`) without refreshing
+  - Each card shows author avatar (clickable → profile), name, username, relative timestamp, Like button and Comment button
+  - **Like** — persisted in `localStorage` per comment; survives page reloads
+  - **Comment** — opens an inline reply box below the specific card; reply is threaded to that post and shown as a nested bubble
+  - **Edit** (own posts only) — pencil icon expands an inline textarea with the current content; save with Ctrl+Enter or the Save button
+  - **Delete** (own posts only) — trash icon shows an inline confirmation before removing; cascade-deletes all replies
+
+### Profile
+
+Public profile page at `/profile/:username` (requires authentication):
+
+- Accessible from any author avatar or name in the feed
+- Facebook-style cover banner + overlapping profile photo
+- Displays name, username, and total post count
+- Lists all of the user's root-level posts with their replies
+- If viewing your own profile: edit/delete buttons are active on each post
+- "Change Password" shortcut button visible only on own profile
 
 ### Change Password
 
@@ -236,26 +251,27 @@ blog-client/
 │   └── logo.png                      # Official brand logo
 ├── src/
 │   ├── components/
-│   │   ├── CommentCard.jsx            # Individual comment — Facebook post style
+│   │   ├── CommentCard.jsx            # Post card — likes, inline reply, edit, delete, profile links
 │   │   ├── CreateCommentBox.jsx       # Expandable "What's on your mind?" input
-│   │   ├── Navbar.jsx                 # Fixed top bar — blue brand + language toggle
+│   │   ├── Navbar.jsx                 # Fixed top bar — avatar links to own profile
 │   │   ├── ProtectedRoute.jsx         # Redirects unauthenticated users to /login
-│   │   └── UserAvatar.jsx             # Photo or initials fallback avatar
+│   │   └── UserAvatar.jsx             # Photo or initials fallback avatar (lazy-loaded)
 │   ├── context/
 │   │   ├── AuthContext.jsx            # JWT auth state + localStorage persistence
 │   │   └── I18nContext.jsx            # ES/EN translations + language toggle
 │   ├── hooks/
-│   │   └── useSocket.js               # Socket.io connection lifecycle hook
+│   │   └── useSocket.js               # Handles comment:new, comment:updated, comment:deleted
 │   ├── pages/
 │   │   ├── ChangePasswordPage.jsx     # Protected change-password form
 │   │   ├── FeedPage.jsx               # Main timeline with real-time comments
 │   │   ├── LoginPage.jsx              # Two-panel login layout
+│   │   ├── ProfilePage.jsx            # Public user profile with post list
 │   │   └── RegisterPage.jsx           # Registration form with photo upload
 │   ├── services/
-│   │   └── api.js                     # Axios instance + auth/feed API calls
+│   │   └── api.js                     # Axios instance + auth / feed / users API calls
 │   ├── utils/
 │   │   ├── storage.js                 # localStorage helpers (token + user)
-│   │   └── timeAgo.js                 # Relative time formatter (e.g. "3m ago")
+│   │   └── timeAgo.js                 # Intl.RelativeTimeFormat i18n-aware relative time
 │   ├── App.jsx                        # Router + I18nProvider + AuthProvider
 │   ├── index.css                      # Tailwind directives + global component classes
 │   └── main.jsx                       # React DOM root
@@ -270,7 +286,11 @@ blog-client/
 ## Git History
 
 ```
-* ba3c533 (HEAD -> develop, origin/main, origin/develop, main) fix: allow polling fallback in Socket.io to avoid StrictMode race condition
+* f77e601 (HEAD -> main, origin/main) merge: develop → main (threading, edit/delete, profile page)
+* 649ea56 feat: add profile page, comment edit/delete and reply threading
+* 1780d5b refactor: fix likes, enable comment button, i18n timeAgo, lazy images, Spanish comments
+* 9f2c25f docs: update README with login fix and Socket.io transport notes
+* ba3c533 fix: allow polling fallback in Socket.io to avoid StrictMode race condition
 * 4ea71ea fix: store token before calling /me to avoid 400 on login
 * c04b27f docs: update README with change-password page and i18n error mapping
 * 1b7dba4 docs: update git history in README
