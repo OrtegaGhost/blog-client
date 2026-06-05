@@ -175,7 +175,7 @@ Facebook-style two-panel layout:
 - **Left panel** — official brand logo and tagline
 - **Right panel** — login form (username + password)
 - Language toggle (ES / EN) in the top-right corner
-- On success: redirects to `/feed` and stores the JWT in `localStorage`
+- On success: saves the JWT, fetches the user profile via `/me`, then redirects to `/feed`
 - Links to the register page
 
 ### Register
@@ -197,7 +197,7 @@ Main timeline page (requires authentication):
 - **Left sidebar** — authenticated user's profile card with comment stats (hidden on mobile)
 - **Feed center**:
   - Expandable comment creation box with placeholder in the active language
-  - Real-time comment list — new comments appear instantly via Socket.io without refreshing
+  - Real-time comment list — new comments appear instantly via Socket.io (polling → WebSocket upgrade) without refreshing
   - Each card shows author avatar, name, username, relative timestamp and Like/Comment buttons
 
 ### Change Password
@@ -270,7 +270,10 @@ blog-client/
 ## Git History
 
 ```
-* 1b7dba4 (HEAD -> develop, origin/main, origin/develop, main) docs: update git history in README
+* ba3c533 (HEAD -> develop, origin/main, origin/develop, main) fix: allow polling fallback in Socket.io to avoid StrictMode race condition
+* 4ea71ea fix: store token before calling /me to avoid 400 on login
+* c04b27f docs: update README with change-password page and i18n error mapping
+* 1b7dba4 docs: update git history in README
 * 194946b fix: translate all API error messages using backend error codes
 * bdb55da feat: add change-password page with Navbar link and full i18n
 * 61d2ef5 docs: update README with responsive design, blue theme and i18n changes
@@ -304,6 +307,7 @@ The developer acted as **tech lead and architect**. Claude Code (claude-sonnet-4
 | i18n design | Defined ES/EN as target languages and default (ES) | Implemented I18nContext with translation dictionaries |
 | Error i18n | Identified that API errors must never appear in English | Mapped all backend error codes to translated keys |
 | Change password | Requested the feature and approved the UX | Implemented ChangePasswordPage, route, Navbar link |
+| Bug fixes | Identified login 400 and WebSocket console errors | Fixed token timing and Socket.io transport fallback |
 | Styling | Defined Facebook blue palette and responsive breakpoints | Implemented Tailwind classes |
 | Branding | Provided official logo asset | Integrated logo across Navbar, Login, Register and Change Password |
 | Documentation | Reviewed and approved this README | Generated initial draft |
