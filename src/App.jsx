@@ -4,7 +4,8 @@ import { I18nProvider }  from './context/I18nContext';
 import ProtectedRoute    from './components/ProtectedRoute';
 import LoginPage         from './pages/LoginPage';
 import RegisterPage      from './pages/RegisterPage';
-import FeedPage          from './pages/FeedPage';
+import FeedPage           from './pages/FeedPage';
+import ChangePasswordPage from './pages/ChangePasswordPage';
 
 const App = () => (
   <BrowserRouter>
@@ -18,6 +19,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <FeedPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/change-password"
+            element={
+              <ProtectedRoute>
+                <ChangePasswordPage />
               </ProtectedRoute>
             }
           />
