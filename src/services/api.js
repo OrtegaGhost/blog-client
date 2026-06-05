@@ -28,8 +28,10 @@ export const authApi = {
   updateCoverPhoto:    (formData) => api.put('/me/cover', formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
   }),
-  updateName:    (name) => api.put('/me/name', { name }),
-  deleteAccount: ()     => api.delete('/me'),
+  updateName:          (name)     => api.put('/me/name', { name }),
+  deleteAccount:       ()         => api.delete('/me'),
+  getSecurityQuestion: (username) => api.get(`/forgot-password/${username}`),
+  resetPassword:       (data)     => api.post('/forgot-password', data),
 };
 
 // --- Feed ----------------------------------------------------------------

@@ -10,8 +10,11 @@ const RegisterPage = () => {
   const navigate                = useNavigate();
   const { t, lang, toggleLang } = useI18n();
 
+  const SECURITY_QUESTIONS = ['q0', 'q1', 'q2', 'q3', 'q4'];
+
   const [form, setForm] = useState({
     name: '', email: '', username: '', password: '',
+    securityQuestion: 'q0', securityAnswer: '',
   });
   const [photo, setPhoto]     = useState(null);
   const [preview, setPreview] = useState(null);
@@ -31,6 +34,7 @@ const RegisterPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!photo) { setError(t('register.photoRequired')); return; }
+    if (!form.securityAnswer.trim()) { setError(t('register.securityHint')); return; }
     setLoading(true);
     setError('');
     const fd = new FormData();
@@ -121,6 +125,30 @@ const RegisterPage = () => {
               className="input-field"
               required
             />
+
+            {/* Security question */}
+            <div className="flex flex-col gap-2">
+              <select
+                name="securityQuestion"
+                value={form.securityQuestion}
+                onChange={handleChange}
+                className="input-field bg-white dark:bg-gray-700"
+                required
+              >
+                {SECURITY_QUESTIONS.map((key) => (
+                  <option key={key} value={key}>{t(`sq.${key}`)}</option>
+                ))}
+              </select>
+              <input
+                type="text" name="securityAnswer" value={form.securityAnswer}
+                onChange={handleChange}
+                placeholder={t('register.securityAnswer')}
+                autoComplete="off"
+                className="input-field"
+                required
+              />
+              <p className="text-xs text-gray-400 dark:text-gray-500 px-1">{t('register.securityHint')}</p>
+            </div>
 
             {/* Profile photo */}
             <label className="cursor-pointer">
