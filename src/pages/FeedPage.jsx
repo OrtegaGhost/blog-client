@@ -73,6 +73,19 @@ const FeedPage = () => {
       .finally(() => setLoading(false));
   }, []);
 
+  // Sincroniza foto y nombre del usuario actual en los comentarios ya cargados
+  useEffect(() => {
+    if (!user?.id) return;
+    const patch = (u) => u?.id === user.id
+      ? { ...u, profilePhoto: user.profilePhoto, name: user.name }
+      : u;
+    setComments((prev) => prev.map((c) => ({
+      ...c,
+      user: patch(c.user),
+      replies: c.replies?.map((r) => ({ ...r, user: patch(r.user) })),
+    })));
+  }, [user?.id, user?.profilePhoto, user?.name]);
+
   const myCount = comments.filter((c) => c.user?.id === user?.id).length;
 
   return (
