@@ -21,19 +21,50 @@ const FeedPage = () => {
   const [loading, setLoading]   = useState(true);
   const [errorKey, setErrorKey] = useState('');
 
-  // Referencia al cuadro de creacion para poder enfocarlo desde las tarjetas
+  // Referencia al cuadro de creacion global de la seccion principal
   const createBoxRef = useRef(null);
 
-  // Agrega un nuevo comentario al inicio de la lista, evitando duplicados
+  // Agrega un comentario nuevo — raiz o respuesta anidada
   const addComment = useCallback((comment) => {
-    setComments((prev) => {
-      if (prev.some((c) => c.id === comment.id)) return prev;
-      return [comment, ...prev];
-    });
+    if (!comment.parentId) {
+      setComments((prev) => {
+        if (prev.some((c) => c.id === comment.id)) return prev;
+        return [comment, ...prev];
+      });
+    } else {
+      setComments((prev) => prev.map((c) => {
+        if (c.id !== comment.parentId) return c;
+        if (c.replies?.some((r) => r.id === comment.id)) return c;
+        return { ...c, replies: [...(c.replies || []), comment] };
+      }));
+    }
   }, []);
 
-  // Escucha eventos 'comment:new' emitidos por el servidor en tiempo real
-  useSocket(addComment, true);
+  // Actualiza el contenido de un comentario (raiz o respuesta)
+  const editComment = useCallback((id, content) => {
+    setComments((prev) => prev.map((c) => {
+      if (c.id === id) return { ...c, content };
+      if (c.replies?.some((r) => r.id === id)) {
+        return { ...c, replies: c.replies.map((r) => r.id === id ? { ...r, content } : r) };
+      }
+      return c;
+    }));
+  }, []);
+
+  // Elimina un comentario del estado (raiz o respuesta)
+  const removeComment = useCallback((id, parentId) => {
+    if (!parentId) {
+      setComments((prev) => prev.filter((c) => c.id !== id));
+    } else {
+      setComments((prev) => prev.map((c) => {
+        if (c.id !== parentId) return c;
+        return { ...c, replies: (c.replies || []).filter((r) => r.id !== id) };
+      }));
+    }
+  }, []);
+
+  // Escucha eventos en tiempo real del servidor
+  useSocket({ onNew: addComment, onUpdated: (c) => editComment(c.id, c.content), onDeleted: ({ id, parentId }) => removeComment(id, parentId) }, true);
 
   // Carga inicial de comentarios al montar el componente
   useEffect(() => {
@@ -41,11 +72,6 @@ const FeedPage = () => {
       .then(({ data }) => setComments(data.comments))
       .catch(() => setErrorKey('feed.errorLoad'))
       .finally(() => setLoading(false));
-  }, []);
-
-  // Enfoca el cuadro de creacion cuando el usuario hace clic en "Comentar" de una tarjeta
-  const handleCommentClick = useCallback(() => {
-    createBoxRef.current?.focus();
   }, []);
 
   const myCount = comments.filter((c) => c.user?.id === user?.id).length;
@@ -145,12 +171,14 @@ const FeedPage = () => {
               </div>
             )}
 
-            {/* Lista de comentarios — cada tarjeta recibe el callback de enfoque */}
+            {/* Lista de comentarios */}
             {!loading && comments.map((comment) => (
               <CommentCard
                 key={comment.id}
                 comment={comment}
-                onCommentClick={handleCommentClick}
+                onCommentCreated={addComment}
+                onCommentUpdated={editComment}
+                onCommentDeleted={removeComment}
               />
             ))}
 

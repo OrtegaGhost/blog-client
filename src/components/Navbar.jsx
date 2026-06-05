@@ -45,12 +45,16 @@ const Navbar = () => {
         {/* ── Right: User + language + logout ── */}
         <div className="flex items-center gap-2 flex-shrink-0">
           {user && (
-            <div className="hidden sm:flex items-center gap-2">
+            <Link
+              to={`/profile/${user.username}`}
+              className="hidden sm:flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-white/10 transition-colors"
+              title={t('nav.profile')}
+            >
               <UserAvatar user={user} size="sm" />
               <span className="font-semibold text-white text-sm max-w-[120px] truncate">
                 {user.name}
               </span>
-            </div>
+            </Link>
           )}
 
           {/* Language toggle */}

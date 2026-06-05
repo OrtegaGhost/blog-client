@@ -27,8 +27,16 @@ export const authApi = {
 // --- Feed ----------------------------------------------------------------
 
 export const feedApi = {
-  getComments:   ()     => api.get('/feed'),
-  createComment: (data) => api.post('/feed', data),
+  getComments:   ()              => api.get('/feed'),
+  createComment: (data)          => api.post('/feed', data),
+  updateComment: (id, content)   => api.put(`/feed/${id}`, { content }),
+  deleteComment: (id)            => api.delete(`/feed/${id}`),
+};
+
+// --- Usuarios ------------------------------------------------------------
+
+export const usersApi = {
+  getProfile: (username) => api.get(`/users/${username}`),
 };
 
 /**

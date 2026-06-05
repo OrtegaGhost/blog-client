@@ -6,6 +6,7 @@ import LoginPage         from './pages/LoginPage';
 import RegisterPage      from './pages/RegisterPage';
 import FeedPage           from './pages/FeedPage';
 import ChangePasswordPage from './pages/ChangePasswordPage';
+import ProfilePage        from './pages/ProfilePage';
 
 const App = () => (
   <BrowserRouter>
@@ -27,6 +28,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <ChangePasswordPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile/:username"
+            element={
+              <ProtectedRoute>
+                <ProfilePage />
               </ProtectedRoute>
             }
           />
