@@ -177,11 +177,11 @@ const CommentCard = ({ comment, onCommentCreated, onCommentUpdated, onCommentDel
         <div className="min-w-0 flex-1">
           <Link
             to={`/profile/${comment.user?.username}`}
-            className="font-semibold text-gray-900 text-sm leading-tight truncate hover:underline"
+            className="font-semibold text-gray-900 dark:text-gray-100 text-sm leading-tight truncate hover:underline"
           >
             {comment.user?.name}
           </Link>
-          <p className="text-gray-500 text-xs">
+          <p className="text-gray-500 dark:text-gray-400 text-xs">
             @{comment.user?.username} · {timeAgo(comment.createdAt, lang)}
           </p>
         </div>
@@ -215,12 +215,12 @@ const CommentCard = ({ comment, onCommentCreated, onCommentUpdated, onCommentDel
 
       {/* Confirmacion de borrado */}
       {confirmDelete && (
-        <div className="mx-4 mb-3 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center justify-between gap-3">
-          <p className="text-red-600 text-sm font-medium">{t('comment.deleteConfirm')}</p>
+        <div className="mx-4 mb-3 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-center justify-between gap-3">
+          <p className="text-red-600 dark:text-red-400 text-sm font-medium">{t('comment.deleteConfirm')}</p>
           <div className="flex gap-2 flex-shrink-0">
             <button
               onClick={() => setConfirmDelete(false)}
-              className="px-3 py-1 text-sm rounded-lg text-gray-600 hover:bg-gray-100 transition-colors"
+              className="px-3 py-1 text-sm rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             >
               {t('comment.no')}
             </button>
@@ -246,15 +246,16 @@ const CommentCard = ({ comment, onCommentCreated, onCommentUpdated, onCommentDel
             rows={3}
             placeholder={t('comment.editPlaceholder')}
             disabled={editLoading}
-            className="w-full resize-none rounded-lg border border-gray-200 bg-gray-50 px-3 py-2
-                       text-sm text-gray-800 placeholder-gray-400 outline-none
+            className="w-full resize-none rounded-lg border border-gray-200 dark:border-gray-600
+                       bg-gray-50 dark:bg-gray-700 px-3 py-2
+                       text-sm text-gray-800 dark:text-gray-200 placeholder-gray-400 outline-none
                        focus:border-brand focus:ring-2 focus:ring-brand/20
                        disabled:opacity-50 transition"
           />
           {editError && <p className="text-red-500 text-xs">{editError}</p>}
           <div className="flex justify-end gap-2">
             <button type="button" onClick={handleEditCancel}
-              className="px-3 py-1.5 rounded-lg text-sm text-gray-600 hover:bg-gray-100 transition-colors">
+              className="px-3 py-1.5 rounded-lg text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
               {t('create.cancel')}
             </button>
             <button type="submit" disabled={editLoading || !editText.trim()}
@@ -265,7 +266,7 @@ const CommentCard = ({ comment, onCommentCreated, onCommentUpdated, onCommentDel
         </form>
       ) : (
         <div className="px-4 pb-4">
-          <p className="text-gray-800 text-[15px] leading-relaxed whitespace-pre-wrap break-words">
+          <p className="text-gray-800 dark:text-gray-200 text-[15px] leading-relaxed whitespace-pre-wrap break-words">
             {comment.content}
           </p>
         </div>
@@ -275,12 +276,12 @@ const CommentCard = ({ comment, onCommentCreated, onCommentUpdated, onCommentDel
       {likes > 0 && (
         <div className="px-4 pb-2 flex items-center gap-1">
           <span className="inline-flex items-center justify-center w-5 h-5 bg-brand rounded-full text-xs">👍</span>
-          <span className="text-gray-500 text-xs">{likes}</span>
+          <span className="text-gray-500 dark:text-gray-400 text-xs">{likes}</span>
         </div>
       )}
 
       {/* Separador */}
-      <div className="border-t border-gray-100 mx-4" />
+      <div className="border-t border-gray-100 dark:border-gray-700 mx-4" />
 
       {/* Botones de accion */}
       <div className="flex px-2 py-1">
@@ -288,7 +289,7 @@ const CommentCard = ({ comment, onCommentCreated, onCommentUpdated, onCommentDel
           onClick={toggleLike}
           className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg
                       font-semibold text-sm transition-colors duration-150
-                      ${liked ? 'text-brand hover:bg-brand/10' : 'text-gray-600 hover:bg-gray-100'}`}
+                      ${liked ? 'text-brand hover:bg-brand/10' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'}`}
         >
           <svg className="w-5 h-5" fill={liked ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -301,7 +302,7 @@ const CommentCard = ({ comment, onCommentCreated, onCommentUpdated, onCommentDel
           onClick={handleCommentBtn}
           className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg
                       font-semibold text-sm transition-colors duration-150
-                      ${showReply ? 'text-brand hover:bg-brand/10' : 'text-gray-600 hover:bg-gray-100'}`}
+                      ${showReply ? 'text-brand hover:bg-brand/10' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'}`}
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -313,20 +314,20 @@ const CommentCard = ({ comment, onCommentCreated, onCommentUpdated, onCommentDel
 
       {/* Respuestas anidadas */}
       {comment.replies?.length > 0 && (
-        <div className="border-t border-gray-100 divide-y divide-gray-50">
+        <div className="border-t border-gray-100 dark:border-gray-700 divide-y divide-gray-50 dark:divide-gray-700/50">
           {comment.replies.map((reply) => (
             <div key={reply.id} className="flex gap-2 px-4 py-2.5">
               <Link to={`/profile/${reply.user?.username}`} className="flex-shrink-0">
                 <UserAvatar user={reply.user} size="sm" />
               </Link>
-              <div className="flex-1 min-w-0 bg-gray-100 rounded-2xl px-3 py-2">
-                <p className="font-semibold text-gray-900 text-xs leading-tight">
+              <div className="flex-1 min-w-0 bg-gray-100 dark:bg-gray-700 rounded-2xl px-3 py-2">
+                <p className="font-semibold text-gray-900 dark:text-gray-100 text-xs leading-tight">
                   <Link to={`/profile/${reply.user?.username}`} className="hover:underline">
                     {reply.user?.name}
                   </Link>
-                  <span className="font-normal text-gray-400 ml-2">{timeAgo(reply.createdAt, lang)}</span>
+                  <span className="font-normal text-gray-400 dark:text-gray-500 ml-2">{timeAgo(reply.createdAt, lang)}</span>
                 </p>
-                <p className="text-gray-800 text-sm leading-snug mt-0.5 whitespace-pre-wrap break-words">
+                <p className="text-gray-800 dark:text-gray-200 text-sm leading-snug mt-0.5 whitespace-pre-wrap break-words">
                   {reply.content}
                 </p>
               </div>
@@ -352,7 +353,7 @@ const CommentCard = ({ comment, onCommentCreated, onCommentUpdated, onCommentDel
                     </button>
                     <button
                       onClick={() => setConfirmReplyId(null)}
-                      className="text-xs px-2 py-0.5 rounded bg-gray-200 text-gray-600 hover:bg-gray-300 transition-colors"
+                      className="text-xs px-2 py-0.5 rounded bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors"
                     >
                       {t('comment.no')}
                     </button>
@@ -377,7 +378,7 @@ const CommentCard = ({ comment, onCommentCreated, onCommentUpdated, onCommentDel
 
       {/* Panel de respuesta inline */}
       {showReply && (
-        <div className="border-t border-gray-100 px-4 py-3 bg-gray-50">
+        <div className="border-t border-gray-100 dark:border-gray-700 px-4 py-3 bg-gray-50 dark:bg-gray-700/40">
           <form onSubmit={handleReplySubmit} className="flex flex-col gap-2">
             <textarea
               ref={replyRef}
@@ -387,8 +388,9 @@ const CommentCard = ({ comment, onCommentCreated, onCommentUpdated, onCommentDel
               rows={2}
               placeholder={t('comment.replyPlaceholder')}
               disabled={replyLoading}
-              className="w-full resize-none rounded-lg border border-gray-200 bg-white px-3 py-2
-                         text-sm text-gray-800 placeholder-gray-400 outline-none
+              className="w-full resize-none rounded-lg border border-gray-200 dark:border-gray-600
+                         bg-white dark:bg-gray-700 px-3 py-2
+                         text-sm text-gray-800 dark:text-gray-200 placeholder-gray-400 outline-none
                          focus:border-brand focus:ring-2 focus:ring-brand/20
                          disabled:opacity-50 transition"
             />
@@ -396,7 +398,7 @@ const CommentCard = ({ comment, onCommentCreated, onCommentUpdated, onCommentDel
             <div className="flex justify-end gap-2">
               <button type="button"
                 onClick={() => { setShowReply(false); setReplyText(''); setReplyError(''); }}
-                className="px-3 py-1.5 rounded-lg text-sm text-gray-600 hover:bg-gray-200 transition-colors">
+                className="px-3 py-1.5 rounded-lg text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
                 {t('create.cancel')}
               </button>
               <button type="submit" disabled={replyLoading || !replyText.trim()}

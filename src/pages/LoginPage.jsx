@@ -44,14 +44,15 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 relative flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 relative flex items-center justify-center px-4">
 
       {/* Language toggle — top right */}
       <div className="absolute top-4 right-4">
         <button
           onClick={toggleLang}
-          className="flex items-center gap-1.5 bg-white hover:bg-gray-50 border border-gray-200
-                     text-gray-600 font-semibold text-sm px-3 py-2 rounded-lg shadow-sm
+          className="flex items-center gap-1.5 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700
+                     border border-gray-200 dark:border-gray-600
+                     text-gray-600 dark:text-gray-300 font-semibold text-sm px-3 py-2 rounded-lg shadow-sm
                      transition-colors duration-150"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -71,7 +72,7 @@ const LoginPage = () => {
             alt="Blog's"
             className="h-40 w-auto mx-auto md:mx-0 mb-4"
           />
-          <p className="text-gray-700 text-xl md:text-2xl font-normal leading-snug max-w-sm mx-auto md:mx-0">
+          <p className="text-gray-700 dark:text-gray-300 text-xl md:text-2xl font-normal leading-snug max-w-sm mx-auto md:mx-0">
             {t('login.tagline')}
           </p>
         </div>
@@ -103,8 +104,8 @@ const LoginPage = () => {
             />
 
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-2">
-                <p className="text-red-600 text-sm text-center">{error}</p>
+              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-4 py-2">
+                <p className="text-red-600 dark:text-red-400 text-sm text-center">{error}</p>
               </div>
             )}
 
@@ -124,9 +125,9 @@ const LoginPage = () => {
             </Link>
 
             <div className="flex items-center gap-3 my-1">
-              <div className="flex-1 h-px bg-gray-200" />
-              <span className="text-gray-400 text-sm">{t('login.or')}</span>
-              <div className="flex-1 h-px bg-gray-200" />
+              <div className="flex-1 h-px bg-gray-200 dark:bg-gray-600" />
+              <span className="text-gray-400 dark:text-gray-500 text-sm">{t('login.or')}</span>
+              <div className="flex-1 h-px bg-gray-200 dark:bg-gray-600" />
             </div>
 
             <Link
