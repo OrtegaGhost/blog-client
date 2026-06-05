@@ -4,9 +4,13 @@ import { io } from 'socket.io-client';
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:3000';
 
 /**
- * Manages a Socket.io connection for the duration of the component's lifecycle.
- * @param {(comment: object) => void} onNewComment - called when comment:new is received
- * @param {boolean} enabled - connect only when true (e.g. when authenticated)
+ * Gestiona una conexion Socket.io durante el ciclo de vida del componente.
+ * Usa polling como transporte inicial y actualiza a WebSocket automaticamente,
+ * lo que evita el error de "WebSocket cerrado antes de establecerse" en desarrollo
+ * (React StrictMode monta los efectos dos veces en dev).
+ *
+ * @param {(comment: object) => void} onNewComment - Llamado al recibir 'comment:new'
+ * @param {boolean} enabled - Conecta solo cuando es true (requiere autenticacion)
  */
 const useSocket = (onNewComment, enabled = true) => {
   const socketRef = useRef(null);
@@ -20,6 +24,7 @@ const useSocket = (onNewComment, enabled = true) => {
       onNewComment(comment);
     });
 
+    // Desconecta limpiamente al desmontar el componente
     return () => {
       socketRef.current?.disconnect();
       socketRef.current = null;

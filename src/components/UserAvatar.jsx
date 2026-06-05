@@ -1,36 +1,50 @@
 import { assetUrl } from '../services/api';
 
+// Mapa de clases Tailwind segun el tamano del avatar
+const SIZES = {
+  sm: 'w-8 h-8 text-xs',
+  md: 'w-10 h-10 text-sm',
+  lg: 'w-14 h-14 text-lg',
+  xl: 'w-20 h-20 text-2xl',
+};
+
 /**
- * Displays a user's profile photo or a fallback circle with their initials.
+ * Muestra la foto de perfil del usuario o un circulo con sus iniciales como respaldo.
+ * Las imagenes se cargan de forma diferida (lazy) para mejorar el rendimiento.
+ *
  * @param {{ user: object, size?: 'sm'|'md'|'lg'|'xl' }} props
  */
 const UserAvatar = ({ user, size = 'md' }) => {
-  const sizes = {
-    sm: 'w-8 h-8 text-xs',
-    md: 'w-10 h-10 text-sm',
-    lg: 'w-14 h-14 text-lg',
-    xl: 'w-20 h-20 text-2xl',
-  };
+  const clases    = SIZES[size] ?? SIZES.md;
+  const photoUrl  = assetUrl(user?.profilePhoto);
 
-  const initials = user?.name
+  // Genera iniciales a partir del nombre completo (maximo 2 caracteres)
+  const iniciales = user?.name
     ? user.name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()
     : '?';
 
-  const photoUrl = assetUrl(user?.profilePhoto);
+  if (photoUrl) {
+    return (
+      <img
+        src={photoUrl}
+        alt={user?.name || 'Usuario'}
+        loading="lazy"
+        decoding="async"
+        className={`${clases} rounded-full object-cover flex-shrink-0 border-2 border-white`}
+        onError={(e) => {
+          // Si la imagen falla, oculta el elemento y deja que el componente padre maneje el fallback
+          e.currentTarget.style.display = 'none';
+        }}
+      />
+    );
+  }
 
-  return photoUrl ? (
-    <img
-      src={photoUrl}
-      alt={user?.name || 'User'}
-      className={`${sizes[size]} rounded-full object-cover flex-shrink-0 border-2 border-white`}
-      onError={(e) => { e.target.style.display = 'none'; }}
-    />
-  ) : (
+  return (
     <div
-      className={`${sizes[size]} rounded-full bg-brand flex items-center justify-center
-                  font-bold text-gray-900 flex-shrink-0 border-2 border-white select-none`}
+      className={`${clases} rounded-full bg-brand flex items-center justify-center
+                  font-bold text-white flex-shrink-0 border-2 border-white select-none`}
     >
-      {initials}
+      {iniciales}
     </div>
   );
 };

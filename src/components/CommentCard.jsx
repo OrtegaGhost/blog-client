@@ -4,22 +4,29 @@ import { timeAgo }  from '../utils/timeAgo';
 import { useI18n }  from '../context/I18nContext';
 
 /**
- * Displays a single blog comment — Facebook post card style.
- * @param {{ comment: object }} props
+ * Tarjeta de un comentario individual — estilo publicacion de Facebook.
+ * Los likes son locales (estado del componente) ya que el backend no expone
+ * un endpoint de likes. Se inicializan en 0 y solo cambian por interaccion real.
+ *
+ * @param {{ comment: object, onCommentClick: () => void }} props
  */
-const CommentCard = ({ comment }) => {
-  const { t } = useI18n();
-  const [liked, setLiked]       = useState(false);
-  const [likeCount, setLikeCount] = useState(Math.floor(Math.random() * 12));
+const CommentCard = ({ comment, onCommentClick }) => {
+  const { t, lang }         = useI18n();
+  const [liked, setLiked]   = useState(false);
+  const [likes, setLikes]   = useState(0);
 
+  // Alterna el estado de like y ajusta el contador en +1 / -1
   const toggleLike = () => {
-    setLiked((prev) => !prev);
-    setLikeCount((prev) => liked ? prev - 1 : prev + 1);
+    setLiked((prev) => {
+      setLikes((n) => (prev ? n - 1 : n + 1));
+      return !prev;
+    });
   };
 
   return (
     <article className="card overflow-hidden">
-      {/* ── Header ── */}
+
+      {/* Cabecera con avatar, nombre y tiempo relativo */}
       <div className="flex items-center gap-3 p-4 pb-3">
         <UserAvatar user={comment.user} size="md" />
         <div className="min-w-0">
@@ -27,33 +34,34 @@ const CommentCard = ({ comment }) => {
             {comment.user?.name}
           </p>
           <p className="text-gray-500 text-xs">
-            @{comment.user?.username} · {timeAgo(comment.createdAt)}
+            @{comment.user?.username} · {timeAgo(comment.createdAt, lang)}
           </p>
         </div>
       </div>
 
-      {/* ── Content ── */}
+      {/* Contenido del comentario */}
       <div className="px-4 pb-4">
         <p className="text-gray-800 text-[15px] leading-relaxed whitespace-pre-wrap break-words">
           {comment.content}
         </p>
       </div>
 
-      {/* ── Reaction count ── */}
-      {likeCount > 0 && (
+      {/* Contador de likes — solo visible cuando hay al menos uno */}
+      {likes > 0 && (
         <div className="px-4 pb-2 flex items-center gap-1">
           <span className="inline-flex items-center justify-center w-5 h-5 bg-brand rounded-full text-xs">
             👍
           </span>
-          <span className="text-gray-500 text-xs">{likeCount}</span>
+          <span className="text-gray-500 text-xs">{likes}</span>
         </div>
       )}
 
-      {/* ── Divider ── */}
+      {/* Separador */}
       <div className="border-t border-gray-100 mx-4" />
 
-      {/* ── Action buttons ── */}
+      {/* Botones de accion: Me gusta y Comentar */}
       <div className="flex px-2 py-1">
+
         <button
           onClick={toggleLike}
           className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg
@@ -70,7 +78,9 @@ const CommentCard = ({ comment }) => {
           {t('comment.like')}
         </button>
 
+        {/* Al hacer clic enfoca el cuadro de creacion de comentarios */}
         <button
+          onClick={onCommentClick}
           className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg
                      text-gray-600 font-semibold text-sm hover:bg-gray-100 transition-colors duration-150"
         >
@@ -80,6 +90,7 @@ const CommentCard = ({ comment }) => {
           </svg>
           {t('comment.comment')}
         </button>
+
       </div>
     </article>
   );

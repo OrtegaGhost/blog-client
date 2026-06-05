@@ -1,18 +1,18 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Link } from 'react-router-dom';
-import { useAuth }  from '../context/AuthContext';
-import { useI18n }  from '../context/I18nContext';
-import { feedApi }  from '../services/api';
-import useSocket     from '../hooks/useSocket';
-import Navbar        from '../components/Navbar';
-import CommentCard   from '../components/CommentCard';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { Link }         from 'react-router-dom';
+import { useAuth }      from '../context/AuthContext';
+import { useI18n }      from '../context/I18nContext';
+import { feedApi }      from '../services/api';
+import useSocket        from '../hooks/useSocket';
+import Navbar           from '../components/Navbar';
+import CommentCard      from '../components/CommentCard';
 import CreateCommentBox from '../components/CreateCommentBox';
-import UserAvatar    from '../components/UserAvatar';
+import UserAvatar       from '../components/UserAvatar';
 
 /**
- * Main feed page — Facebook timeline layout.
- * Left sidebar: user profile card (hidden on mobile)
- * Center: comment list with real-time updates via Socket.io
+ * Pagina principal del feed — diseno de dos columnas estilo Facebook.
+ * Columna izquierda: tarjeta de perfil del usuario (solo escritorio).
+ * Columna central: lista de comentarios con actualizaciones en tiempo real via Socket.io.
  */
 const FeedPage = () => {
   const { user }  = useAuth();
@@ -21,15 +21,21 @@ const FeedPage = () => {
   const [loading, setLoading]   = useState(true);
   const [errorKey, setErrorKey] = useState('');
 
-  const handleNewComment = useCallback((comment) => {
+  // Referencia al cuadro de creacion para poder enfocarlo desde las tarjetas
+  const createBoxRef = useRef(null);
+
+  // Agrega un nuevo comentario al inicio de la lista, evitando duplicados
+  const addComment = useCallback((comment) => {
     setComments((prev) => {
       if (prev.some((c) => c.id === comment.id)) return prev;
       return [comment, ...prev];
     });
   }, []);
 
-  useSocket(handleNewComment, true);
+  // Escucha eventos 'comment:new' emitidos por el servidor en tiempo real
+  useSocket(addComment, true);
 
+  // Carga inicial de comentarios al montar el componente
   useEffect(() => {
     feedApi.getComments()
       .then(({ data }) => setComments(data.comments))
@@ -37,12 +43,10 @@ const FeedPage = () => {
       .finally(() => setLoading(false));
   }, []);
 
-  const handleCommentCreated = (comment) => {
-    setComments((prev) => {
-      if (prev.some((c) => c.id === comment.id)) return prev;
-      return [comment, ...prev];
-    });
-  };
+  // Enfoca el cuadro de creacion cuando el usuario hace clic en "Comentar" de una tarjeta
+  const handleCommentClick = useCallback(() => {
+    createBoxRef.current?.focus();
+  }, []);
 
   const myCount = comments.filter((c) => c.user?.id === user?.id).length;
 
@@ -50,14 +54,14 @@ const FeedPage = () => {
     <div className="min-h-screen bg-gray-100">
       <Navbar />
 
-      {/* Push content below fixed navbar */}
+      {/* Empuja el contenido por debajo de la barra fija */}
       <main className="pt-16 pb-8">
         <div className="max-w-5xl mx-auto px-4 flex gap-4 items-start">
 
-          {/* ── Left sidebar (desktop only) ── */}
+          {/* Barra lateral izquierda — solo visible en escritorio */}
           <aside className="hidden md:flex flex-col gap-2 w-72 flex-shrink-0 sticky top-20">
 
-            {/* User profile card */}
+            {/* Tarjeta de perfil del usuario autenticado */}
             <div className="card p-4 flex flex-col items-center text-center gap-3">
               <UserAvatar user={user} size="xl" />
               <div>
@@ -79,7 +83,7 @@ const FeedPage = () => {
               </div>
             </div>
 
-            {/* Navigation links */}
+            {/* Enlace de navegacion al feed principal */}
             <div className="card p-3">
               <Link
                 to="/feed"
@@ -97,13 +101,13 @@ const FeedPage = () => {
 
           </aside>
 
-          {/* ── Main feed ── */}
+          {/* Seccion principal del feed */}
           <section className="flex-1 flex flex-col gap-3 min-w-0">
 
-            {/* Create comment box */}
-            <CreateCommentBox onCommentCreated={handleCommentCreated} />
+            {/* Cuadro de creacion — ref expone el metodo focus() */}
+            <CreateCommentBox ref={createBoxRef} onCommentCreated={addComment} />
 
-            {/* Feed label */}
+            {/* Etiqueta separadora */}
             <div className="flex items-center gap-3">
               <div className="flex-1 h-px bg-gray-300" />
               <span className="text-gray-500 text-xs font-medium uppercase tracking-wide">
@@ -112,14 +116,14 @@ const FeedPage = () => {
               <div className="flex-1 h-px bg-gray-300" />
             </div>
 
-            {/* Loading state */}
+            {/* Estado de carga */}
             {loading && (
               <div className="flex justify-center py-12">
                 <div className="w-10 h-10 border-4 border-brand border-t-transparent rounded-full animate-spin" />
               </div>
             )}
 
-            {/* Error state */}
+            {/* Estado de error con boton de reintento */}
             {errorKey && !loading && (
               <div className="card p-6 text-center">
                 <p className="text-red-500">{t(errorKey)}</p>
@@ -132,7 +136,7 @@ const FeedPage = () => {
               </div>
             )}
 
-            {/* Empty state */}
+            {/* Estado vacio */}
             {!loading && !errorKey && comments.length === 0 && (
               <div className="card p-10 text-center">
                 <p className="text-4xl mb-3">💬</p>
@@ -141,9 +145,13 @@ const FeedPage = () => {
               </div>
             )}
 
-            {/* Comment list */}
+            {/* Lista de comentarios — cada tarjeta recibe el callback de enfoque */}
             {!loading && comments.map((comment) => (
-              <CommentCard key={comment.id} comment={comment} />
+              <CommentCard
+                key={comment.id}
+                comment={comment}
+                onCommentClick={handleCommentClick}
+              />
             ))}
 
           </section>

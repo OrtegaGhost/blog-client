@@ -1,20 +1,43 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { useAuth }  from '../context/AuthContext';
 import { useI18n }  from '../context/I18nContext';
 import UserAvatar   from './UserAvatar';
 import { feedApi }  from '../services/api';
 
 /**
- * "What's on your mind?" style comment creation box.
+ * Cuadro de creacion de comentarios estilo "En que estas pensando?".
+ * Expone el metodo focus() mediante forwardRef para que componentes externos
+ * (como CommentCard al hacer clic en "Comentar") puedan activarlo.
+ *
  * @param {{ onCommentCreated: (comment: object) => void }} props
  */
-const CreateCommentBox = ({ onCommentCreated }) => {
+const CreateCommentBox = forwardRef(({ onCommentCreated }, ref) => {
   const { user }   = useAuth();
   const { t }      = useI18n();
   const [content, setContent]   = useState('');
   const [loading, setLoading]   = useState(false);
   const [error, setError]       = useState('');
   const [expanded, setExpanded] = useState(false);
+
+  const textareaRef  = useRef(null);
+  const pendingFocus = useRef(false);  // indica si se debe enfocar tras expandir
+
+  // Expone el metodo focus() al componente padre via ref
+  useImperativeHandle(ref, () => ({
+    focus: () => {
+      pendingFocus.current = true;
+      setExpanded(true);
+    },
+  }));
+
+  // Cuando el cuadro se expande por solicitud externa, enfoca el textarea y hace scroll
+  useEffect(() => {
+    if (expanded && pendingFocus.current && textareaRef.current) {
+      textareaRef.current.focus();
+      textareaRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      pendingFocus.current = false;
+    }
+  }, [expanded]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,7 +50,9 @@ const CreateCommentBox = ({ onCommentCreated }) => {
       setContent('');
       setExpanded(false);
     } catch (err) {
-      setError(err.response?.data?.message || t('create.error'));
+      const code = err.response?.data?.error;
+      // Usa clave traducida si existe; si no, cae al mensaje generico
+      setError(code && t(`err.${code}`) !== `err.${code}` ? t(`err.${code}`) : t('create.error'));
     } finally {
       setLoading(false);
     }
@@ -37,21 +62,26 @@ const CreateCommentBox = ({ onCommentCreated }) => {
 
   return (
     <div className="card p-4">
-      {/* ── Input row ── */}
+
+      {/* Fila principal: avatar + campo de texto */}
       <div className="flex items-center gap-3">
         <UserAvatar user={user} size="md" />
-        <button
-          onClick={() => setExpanded(true)}
-          className={`flex-1 text-left bg-gray-100 hover:bg-gray-200 transition-colors
-                      rounded-full px-4 py-3 text-gray-500 text-[15px]
-                      ${expanded ? 'hidden' : 'block'}`}
-        >
-          {placeholder}
-        </button>
 
+        {/* Boton colapsado — abre el textarea al hacer clic */}
+        {!expanded && (
+          <button
+            onClick={() => setExpanded(true)}
+            className="flex-1 text-left bg-gray-100 hover:bg-gray-200 transition-colors
+                       rounded-full px-4 py-3 text-gray-500 text-[15px]"
+          >
+            {placeholder}
+          </button>
+        )}
+
+        {/* Textarea expandido */}
         {expanded && (
           <textarea
-            autoFocus
+            ref={textareaRef}
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder={placeholder}
@@ -63,12 +93,12 @@ const CreateCommentBox = ({ onCommentCreated }) => {
         )}
       </div>
 
-      {/* ── Error ── */}
+      {/* Mensaje de error */}
       {error && (
-        <p className="text-red-500 text-sm mt-2 ml-13">{error}</p>
+        <p className="text-red-500 text-sm mt-2">{error}</p>
       )}
 
-      {/* ── Divider + actions ── */}
+      {/* Controles de envio — visibles solo cuando esta expandido */}
       {expanded && (
         <>
           <div className="border-t border-gray-100 my-3" />
@@ -95,6 +125,8 @@ const CreateCommentBox = ({ onCommentCreated }) => {
       )}
     </div>
   );
-};
+});
+
+CreateCommentBox.displayName = 'CreateCommentBox';
 
 export default CreateCommentBox;
