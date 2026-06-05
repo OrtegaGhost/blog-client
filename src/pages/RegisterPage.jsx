@@ -49,14 +49,15 @@ const RegisterPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 relative flex items-center justify-center px-4 py-8">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 relative flex items-center justify-center px-4 py-8">
 
       {/* Language toggle — top right */}
       <div className="absolute top-4 right-4">
         <button
           onClick={toggleLang}
-          className="flex items-center gap-1.5 bg-white hover:bg-gray-50 border border-gray-200
-                     text-gray-600 font-semibold text-sm px-3 py-2 rounded-lg shadow-sm
+          className="flex items-center gap-1.5 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700
+                     border border-gray-200 dark:border-gray-600
+                     text-gray-600 dark:text-gray-300 font-semibold text-sm px-3 py-2 rounded-lg shadow-sm
                      transition-colors duration-150"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -78,10 +79,10 @@ const RegisterPage = () => {
 
         {/* ── Form card ── */}
         <div className="card p-6">
-          <h1 className="text-2xl font-bold text-gray-900 text-center">{t('register.title')}</h1>
-          <p className="text-gray-500 text-center mt-1 mb-5">{t('register.subtitle')}</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 text-center">{t('register.title')}</h1>
+          <p className="text-gray-500 dark:text-gray-400 text-center mt-1 mb-5">{t('register.subtitle')}</p>
 
-          <div className="border-t border-gray-200 mb-5" />
+          <div className="border-t border-gray-200 dark:border-gray-600 mb-5" />
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-3">
 
@@ -125,22 +126,22 @@ const RegisterPage = () => {
             <label className="cursor-pointer">
               <div className={`flex items-center gap-4 p-3 border-2 border-dashed rounded-xl
                                transition-colors duration-150
-                               ${preview ? 'border-brand bg-brand/5' : 'border-gray-300 hover:border-brand'}`}>
+                               ${preview ? 'border-brand bg-brand/5 dark:bg-brand/10' : 'border-gray-300 dark:border-gray-600 hover:border-brand'}`}>
                 {preview ? (
                   <img src={preview} alt="Preview" className="w-12 h-12 rounded-full object-cover flex-shrink-0" />
                 ) : (
-                  <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
-                    <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
+                    <svg className="w-6 h-6 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                         d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
                   </div>
                 )}
                 <div className="min-w-0">
-                  <p className="text-sm font-medium text-gray-700">
+                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
                     {preview ? t('register.photoSelected') : t('register.uploadPhoto')}
                   </p>
-                  <p className="text-xs text-gray-400">{t('register.photoHint')}</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500">{t('register.photoHint')}</p>
                 </div>
               </div>
               <input
@@ -150,8 +151,8 @@ const RegisterPage = () => {
             </label>
 
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-2">
-                <p className="text-red-600 text-sm">{error}</p>
+              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-4 py-2">
+                <p className="text-red-600 dark:text-red-400 text-sm">{error}</p>
               </div>
             )}
 

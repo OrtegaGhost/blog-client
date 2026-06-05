@@ -98,7 +98,7 @@ const ProfilePage = () => {
   const isOwnProfile = me?.username === username;
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
       <Navbar />
 
       <main className="pt-16 pb-8">
@@ -184,7 +184,7 @@ const ProfilePage = () => {
                       className="w-24 h-24 rounded-full border-4 border-white object-cover shadow"
                     />
                   ) : (
-                    <div className="w-24 h-24 rounded-full border-4 border-white bg-brand/20
+                    <div className="w-24 h-24 rounded-full border-4 border-white dark:border-gray-800 bg-brand/20
                                     flex items-center justify-center text-3xl font-bold text-brand shadow">
                       {profile.name?.charAt(0).toUpperCase()}
                     </div>
@@ -223,31 +223,36 @@ const ProfilePage = () => {
 
                 <div className="flex items-end justify-between">
                   <div>
-                    <h1 className="text-2xl font-bold text-gray-900 leading-tight">{profile.name}</h1>
-                    <p className="text-gray-500 text-sm">@{profile.username}</p>
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 leading-tight">{profile.name}</h1>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm">@{profile.username}</p>
                   </div>
                   {isOwnProfile && (
                     <button
-                      onClick={() => navigate('/change-password')}
-                      className="btn-primary text-sm py-2 px-4"
+                      onClick={() => navigate('/settings')}
+                      className="flex items-center gap-1.5 btn-secondary text-sm py-2 px-4"
                     >
-                      {t('nav.changePassword')}
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                          d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      {t('nav.settings')}
                     </button>
                   )}
                 </div>
 
                 {/* Estadisticas */}
-                <div className="mt-4 flex gap-6 border-t border-gray-100 pt-4">
+                <div className="mt-4 flex gap-6 border-t border-gray-100 dark:border-gray-700 pt-4">
                   <div>
-                    <p className="font-bold text-gray-900 text-lg leading-tight">{comments.length}</p>
-                    <p className="text-gray-500 text-xs">{t('profile.posts')}</p>
+                    <p className="font-bold text-gray-900 dark:text-gray-100 text-lg leading-tight">{comments.length}</p>
+                    <p className="text-gray-500 dark:text-gray-400 text-xs">{t('profile.posts')}</p>
                   </div>
                   {profile.createdAt && (
                     <div>
-                      <p className="font-bold text-gray-900 text-lg leading-tight">
+                      <p className="font-bold text-gray-900 dark:text-gray-100 text-lg leading-tight">
                         {new Date(profile.createdAt).toLocaleDateString(lang, { month: 'short', year: 'numeric' })}
                       </p>
-                      <p className="text-gray-500 text-xs">{t('feed.since')}</p>
+                      <p className="text-gray-500 dark:text-gray-400 text-xs">{t('feed.since')}</p>
                     </div>
                   )}
                 </div>
@@ -255,7 +260,7 @@ const ProfilePage = () => {
             </div>
 
             {/* Lista de publicaciones */}
-            <h2 className="text-gray-700 font-semibold text-sm uppercase tracking-wide mb-3 px-1">
+            <h2 className="text-gray-700 dark:text-gray-300 font-semibold text-sm uppercase tracking-wide mb-3 px-1">
               {t('profile.posts')}
             </h2>
 

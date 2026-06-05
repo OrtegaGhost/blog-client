@@ -71,8 +71,8 @@ const CreateCommentBox = forwardRef(({ onCommentCreated }, ref) => {
         {!expanded && (
           <button
             onClick={() => setExpanded(true)}
-            className="flex-1 text-left bg-gray-100 hover:bg-gray-200 transition-colors
-                       rounded-full px-4 py-3 text-gray-500 text-[15px]"
+            className="flex-1 text-left bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors
+                       rounded-full px-4 py-3 text-gray-500 dark:text-gray-400 text-[15px]"
           >
             {placeholder}
           </button>
@@ -87,8 +87,8 @@ const CreateCommentBox = forwardRef(({ onCommentCreated }, ref) => {
             placeholder={placeholder}
             rows={3}
             maxLength={1000}
-            className="flex-1 bg-transparent text-gray-900 text-[15px] resize-none
-                       focus:outline-none placeholder-gray-400 leading-relaxed"
+            className="flex-1 bg-transparent text-gray-900 dark:text-gray-100 text-[15px] resize-none
+                       focus:outline-none placeholder-gray-400 dark:placeholder-gray-500 leading-relaxed"
           />
         )}
       </div>
@@ -101,9 +101,9 @@ const CreateCommentBox = forwardRef(({ onCommentCreated }, ref) => {
       {/* Controles de envio — visibles solo cuando esta expandido */}
       {expanded && (
         <>
-          <div className="border-t border-gray-100 my-3" />
+          <div className="border-t border-gray-100 dark:border-gray-700 my-3" />
           <div className="flex items-center justify-between">
-            <span className="text-gray-400 text-xs">{content.length}/1000</span>
+            <span className="text-gray-400 dark:text-gray-500 text-xs">{content.length}/1000</span>
             <div className="flex gap-2">
               <button
                 type="button"
