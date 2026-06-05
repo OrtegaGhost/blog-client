@@ -22,11 +22,10 @@ const Navbar = () => {
       <div className="max-w-6xl mx-auto px-4 h-full flex items-center justify-between">
 
         {/* ── Left: Logo ── */}
-        <Link to="/feed" className="flex items-center gap-2 flex-shrink-0">
-          <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
-            <span className="text-brand font-extrabold text-lg leading-none">B</span>
+        <Link to="/feed" className="flex items-center flex-shrink-0">
+          <div className="bg-white rounded-lg px-2 py-1">
+            <img src="/logo.png" alt="Blog's" className="h-9 w-auto" />
           </div>
-          <span className="text-white font-extrabold text-xl hidden sm:block">Blog</span>
         </Link>
 
         {/* ── Center: Nav tabs ── */}

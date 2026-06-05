@@ -72,11 +72,8 @@ const RegisterPage = () => {
 
         {/* ── Brand header ── */}
         <div className="text-center mb-6">
-          <Link to="/login" className="inline-flex items-center gap-2">
-            <div className="w-10 h-10 bg-brand rounded-full flex items-center justify-center">
-              <span className="text-white font-extrabold text-xl leading-none">B</span>
-            </div>
-            <span className="text-gray-900 font-extrabold text-3xl">Blog</span>
+          <Link to="/login" className="inline-block">
+            <img src="/logo.png" alt="Blog's" className="h-24 w-auto mx-auto" />
           </Link>
         </div>
 

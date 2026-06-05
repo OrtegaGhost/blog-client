@@ -60,12 +60,11 @@ const LoginPage = () => {
 
         {/* ── Left panel — brand ── */}
         <div className="flex-1 text-center md:text-left">
-          <div className="flex items-center justify-center md:justify-start gap-3 mb-4">
-            <div className="w-16 h-16 bg-brand rounded-full flex items-center justify-center shadow-lg">
-              <span className="text-white font-extrabold text-3xl leading-none">B</span>
-            </div>
-            <span className="text-brand font-extrabold text-5xl drop-shadow">Blog</span>
-          </div>
+          <img
+            src="/logo.png"
+            alt="Blog's"
+            className="h-40 w-auto mx-auto md:mx-0 mb-4"
+          />
           <p className="text-gray-700 text-xl md:text-2xl font-normal leading-snug max-w-sm mx-auto md:mx-0">
             {t('login.tagline')}
           </p>
