@@ -35,11 +35,10 @@ const ChangePasswordPage = () => {
       setSuccess(true);
       setTimeout(() => navigate('/feed'), 2000);
     } catch (err) {
-      const msg =
-        err.response?.data?.message ||
-        err.response?.data?.details?.[0]?.message ||
-        t('chpw.failed');
-      setError(msg);
+      const code = err.response?.data?.error;
+      if (code === 'WRONG_CURRENT_PASSWORD') setError(t('chpw.wrongCurrent'));
+      else if (code === 'SAME_PASSWORD') setError(t('chpw.samePassword'));
+      else setError(t('chpw.failed'));
     } finally {
       setLoading(false);
     }

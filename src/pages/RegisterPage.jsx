@@ -40,10 +40,9 @@ const RegisterPage = () => {
       await authApi.register(fd);
       navigate('/login', { state: { registered: true } });
     } catch (err) {
-      const msg = err.response?.data?.message
-        || err.response?.data?.details?.[0]?.message
-        || t('register.failed');
-      setError(msg);
+      const code = err.response?.data?.error;
+      if (code && t(`err.${code}`) !== `err.${code}`) setError(t(`err.${code}`));
+      else setError(t('register.failed'));
     } finally {
       setLoading(false);
     }

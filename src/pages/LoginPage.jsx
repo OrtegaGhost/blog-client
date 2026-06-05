@@ -31,7 +31,10 @@ const LoginPage = () => {
       login(tokenData, userData);
       navigate('/feed');
     } catch (err) {
-      setError(err.response?.data?.message || t('login.error'));
+      const code = err.response?.data?.error;
+      if (code === 'INVALID_CREDENTIALS') setError(t('login.invalidCredentials'));
+      else if (code && t(`err.${code}`) !== `err.${code}`) setError(t(`err.${code}`));
+      else setError(t('login.error'));
     } finally {
       setLoading(false);
     }
