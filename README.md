@@ -34,6 +34,7 @@ Consumes the [blog-api](https://github.com/OrtegaGhost/blog-api) REST API.
 | Real-time | Socket.io client 4 |
 | State | React Context API |
 | i18n | Custom I18nContext (ES / EN) |
+| Dark mode | Tailwind CSS `darkMode: 'class'` + ThemeContext |
 | Runtime | Node.js 20+ |
 
 ---
@@ -193,8 +194,8 @@ Centered card with full registration form:
 
 Main timeline page (requires authentication):
 
-- **Navbar** — Facebook blue (`#1877F2`) fixed bar with brand logo, home tab, language toggle (ES / EN), change-password link and logout button. The user avatar links to their own profile.
-- **Left sidebar** — authenticated user's profile card with comment stats (hidden on mobile)
+- **Navbar** — Facebook blue (`#1877F2`) fixed bar with brand logo (circular), home tab, language toggle (ES / EN), settings gear icon and logout button. The user avatar links to their own profile.
+- **Left sidebar** — authenticated user's profile card with comment stats + "Tu actividad" stats card showing personal post count, total posts and member-since date (hidden on mobile)
 - **Feed center**:
   - Expandable comment creation box at the top
   - Real-time comment list — new comments, edits and deletes appear instantly via Socket.io (`comment:new`, `comment:updated`, `comment:deleted`) without refreshing
@@ -202,28 +203,40 @@ Main timeline page (requires authentication):
   - **Like** — persisted in `localStorage` per comment; survives page reloads
   - **Comment** — opens an inline reply box below the specific card; reply is threaded to that post and shown as a nested bubble
   - **Edit** (own posts only) — pencil icon expands an inline textarea with the current content; save with Ctrl+Enter or the Save button
-  - **Delete** (own posts only) — trash icon shows an inline confirmation before removing; cascade-deletes all replies
+  - **Delete** (own posts only) — trash icon shows an inline confirmation panel ("¿Eliminar esta publicacion?") before removing; cascade-deletes all replies. Reply deletions also require inline confirmation
 
 ### Profile
 
 Public profile page at `/profile/:username` (requires authentication):
 
-- Accessible from any author avatar or name in the feed
-- Facebook-style cover banner + overlapping profile photo
-- Displays name, username, and total post count
+- Accessible from any author avatar or name in the feed or Navbar
+- Facebook-style cover banner + overlapping circular profile photo
+- Displays name, username, and total post count with member-since date
 - Lists all of the user's root-level posts with their replies
-- If viewing your own profile: edit/delete buttons are active on each post
-- "Change Password" shortcut button visible only on own profile
+- If viewing your own profile:
+  - Camera icon overlay on profile photo and cover to upload new images (converts to WebP server-side)
+  - Settings gear button that navigates to `/settings`
+  - Edit/delete buttons are active on each post
 
-### Change Password
+### Settings
 
-Protected page at `/change-password`, accessible via the lock icon in the Navbar:
+Protected page at `/settings`, accessible via the gear icon (⚙) in the Navbar or the profile page:
 
-- Fields: current password, new password, confirm new password
-- Client-side validation: new and confirm fields must match before submitting
-- On success: shows a confirmation message and redirects to `/feed` after 2 seconds
-- Language toggle (ES / EN) in the top-right corner
-- Back-to-feed link for quick navigation
+- **Account section**
+  - **Change Name** — inline input, saves immediately; validates letters only
+  - **Change Password** — full form (current + new + confirm); shows success banner on completion
+- **Appearance section**
+  - **Dark Mode toggle** — animated switch; preference persisted in `localStorage`; applied without flash on reload
+- **Danger Zone section**
+  - **Delete Account** — requires typing `DELETE` in a confirmation input before the button activates; calls `DELETE /me`, clears session and redirects to login
+
+### Dark Mode
+
+Full dark theme powered by Tailwind CSS `darkMode: 'class'`:
+
+- Toggled via the **Settings → Appearance** switch
+- Preference saved in `localStorage` and applied via an inline script in `index.html` before React hydrates, preventing any flash of unstyled content on reload
+- All pages and components include `dark:` variants: backgrounds, text, borders, inputs, buttons, cards, sidebars, modals and confirmation panels
 
 ### Internationalisation (i18n)
 
@@ -251,32 +264,34 @@ blog-client/
 │   └── logo.png                      # Official brand logo
 ├── src/
 │   ├── components/
-│   │   ├── CommentCard.jsx            # Post card — likes, inline reply, edit, delete, profile links
+│   │   ├── CommentCard.jsx            # Post card — likes, inline reply, edit/delete with confirmation, dark mode
 │   │   ├── CreateCommentBox.jsx       # Expandable "What's on your mind?" input
-│   │   ├── Navbar.jsx                 # Fixed top bar — avatar links to own profile
+│   │   ├── Navbar.jsx                 # Fixed top bar — circular logo, settings gear, avatar → profile
 │   │   ├── ProtectedRoute.jsx         # Redirects unauthenticated users to /login
 │   │   └── UserAvatar.jsx             # Photo or initials fallback avatar (lazy-loaded)
 │   ├── context/
-│   │   ├── AuthContext.jsx            # JWT auth state + localStorage persistence
-│   │   └── I18nContext.jsx            # ES/EN translations + language toggle
+│   │   ├── AuthContext.jsx            # JWT auth state + localStorage persistence + updateUser()
+│   │   ├── I18nContext.jsx            # ES/EN translations + language toggle
+│   │   └── ThemeContext.jsx           # Dark mode state — persists in localStorage, toggles <html class="dark">
 │   ├── hooks/
 │   │   └── useSocket.js               # Handles comment:new, comment:updated, comment:deleted
 │   ├── pages/
-│   │   ├── ChangePasswordPage.jsx     # Protected change-password form
-│   │   ├── FeedPage.jsx               # Main timeline with real-time comments
+│   │   ├── FeedPage.jsx               # Main timeline with real-time comments + activity sidebar
 │   │   ├── LoginPage.jsx              # Two-panel login layout
-│   │   ├── ProfilePage.jsx            # Public user profile with post list
-│   │   └── RegisterPage.jsx           # Registration form with photo upload
+│   │   ├── ProfilePage.jsx            # Public user profile — photo/cover upload, settings button
+│   │   ├── RegisterPage.jsx           # Registration form with photo upload
+│   │   └── SettingsPage.jsx           # Change name, change password, dark mode toggle, delete account
 │   ├── services/
-│   │   └── api.js                     # Axios instance + auth / feed / users API calls
+│   │   └── api.js                     # Axios instance + auth / feed / users API calls + assetUrl helper
 │   ├── utils/
 │   │   ├── storage.js                 # localStorage helpers (token + user)
 │   │   └── timeAgo.js                 # Intl.RelativeTimeFormat i18n-aware relative time
-│   ├── App.jsx                        # Router + I18nProvider + AuthProvider
-│   ├── index.css                      # Tailwind directives + global component classes
+│   ├── App.jsx                        # Router + I18nProvider + ThemeProvider + AuthProvider
+│   ├── index.css                      # Tailwind directives + global component classes (dark: variants)
 │   └── main.jsx                       # React DOM root
+├── index.html                         # Anti-FOUC dark mode script before React hydration
 ├── .env.example
-├── tailwind.config.js                 # Facebook blue brand color (#1877F2)
+├── tailwind.config.js                 # Facebook blue brand color + darkMode: 'class'
 ├── vite.config.js
 └── package.json
 ```
@@ -286,19 +301,15 @@ blog-client/
 ## Git History
 
 ```
-* f77e601 (HEAD -> main, origin/main) merge: develop → main (threading, edit/delete, profile page)
+* (HEAD -> main) docs: update README with settings page, dark mode and profile photo upload
+* 68f28a8 feat: settings page with dark mode, change name and delete account
+* 4d32a5d feat: UI/UX improvements — navbar, profile photo upload, activity sidebar
+* 86eabae docs: update README with profile page, edit/delete and threading features
 * 649ea56 feat: add profile page, comment edit/delete and reply threading
 * 1780d5b refactor: fix likes, enable comment button, i18n timeAgo, lazy images, Spanish comments
-* 9f2c25f docs: update README with login fix and Socket.io transport notes
 * ba3c533 fix: allow polling fallback in Socket.io to avoid StrictMode race condition
 * 4ea71ea fix: store token before calling /me to avoid 400 on login
-* c04b27f docs: update README with change-password page and i18n error mapping
-* 1b7dba4 docs: update git history in README
-* 194946b fix: translate all API error messages using backend error codes
 * bdb55da feat: add change-password page with Navbar link and full i18n
-* 61d2ef5 docs: update README with responsive design, blue theme and i18n changes
-* f349c74 assets: update logo to circular version without tagline
-* f79e9f0 feat: replace placeholder logo with official Blog's brand image
 * 0c1fefb feat: responsive design, Facebook blue theme, and ES/EN language selector
 * 355eeb7 docs: add comprehensive README with setup and execution instructions
 * 4488a59 feat: initial frontend setup with full UI implementation
