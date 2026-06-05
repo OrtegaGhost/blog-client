@@ -166,7 +166,7 @@ docker run -p 8080:80 blog-client
 
 ## Application Structure
 
-The app has three main pages, all connecting to the blog-api backend.
+The app has four pages, all connecting to the blog-api backend.
 
 ### Login
 
@@ -193,12 +193,22 @@ Centered card with full registration form:
 
 Main timeline page (requires authentication):
 
-- **Navbar** — Facebook blue (`#1877F2`) fixed bar with brand logo, home tab, language toggle (ES / EN) and logout button
+- **Navbar** — Facebook blue (`#1877F2`) fixed bar with brand logo, home tab, language toggle (ES / EN), change-password link and logout button
 - **Left sidebar** — authenticated user's profile card with comment stats (hidden on mobile)
 - **Feed center**:
   - Expandable comment creation box with placeholder in the active language
   - Real-time comment list — new comments appear instantly via Socket.io without refreshing
   - Each card shows author avatar, name, username, relative timestamp and Like/Comment buttons
+
+### Change Password
+
+Protected page at `/change-password`, accessible via the lock icon in the Navbar:
+
+- Fields: current password, new password, confirm new password
+- Client-side validation: new and confirm fields must match before submitting
+- On success: shows a confirmation message and redirects to `/feed` after 2 seconds
+- Language toggle (ES / EN) in the top-right corner
+- Back-to-feed link for quick navigation
 
 ### Internationalisation (i18n)
 
@@ -208,6 +218,7 @@ The app ships with full Spanish and English translations via a lightweight custo
 - Toggling language updates the entire UI instantly with no page reload
 - Default language: **Spanish (ES)**
 - All user-facing strings are translated: placeholders, buttons, labels, error messages and empty states
+- API error codes (`INVALID_CREDENTIALS`, `DUPLICATE_USER`, `WRONG_CURRENT_PASSWORD`, `TOO_MANY_REQUESTS`, etc.) are mapped to translated messages — no English text from the backend ever reaches the user
 
 ### Responsive Design
 
@@ -236,6 +247,7 @@ blog-client/
 │   ├── hooks/
 │   │   └── useSocket.js               # Socket.io connection lifecycle hook
 │   ├── pages/
+│   │   ├── ChangePasswordPage.jsx     # Protected change-password form
 │   │   ├── FeedPage.jsx               # Main timeline with real-time comments
 │   │   ├── LoginPage.jsx              # Two-panel login layout
 │   │   └── RegisterPage.jsx           # Registration form with photo upload
@@ -258,7 +270,8 @@ blog-client/
 ## Git History
 
 ```
-* 194946b (HEAD -> develop, origin/main, origin/develop, main) fix: translate all API error messages using backend error codes
+* 1b7dba4 (HEAD -> develop, origin/main, origin/develop, main) docs: update git history in README
+* 194946b fix: translate all API error messages using backend error codes
 * bdb55da feat: add change-password page with Navbar link and full i18n
 * 61d2ef5 docs: update README with responsive design, blue theme and i18n changes
 * f349c74 assets: update logo to circular version without tagline
@@ -289,8 +302,10 @@ The developer acted as **tech lead and architect**. Claude Code (claude-sonnet-4
 | Architecture design | Approved Context/hooks/pages separation | Generated initial file structure |
 | Code generation | Reviewed every component before acceptance | Generated JSX, hooks and service layer |
 | i18n design | Defined ES/EN as target languages and default (ES) | Implemented I18nContext with translation dictionaries |
+| Error i18n | Identified that API errors must never appear in English | Mapped all backend error codes to translated keys |
+| Change password | Requested the feature and approved the UX | Implemented ChangePasswordPage, route, Navbar link |
 | Styling | Defined Facebook blue palette and responsive breakpoints | Implemented Tailwind classes |
-| Branding | Provided official logo asset | Integrated logo across Navbar, Login and Register |
+| Branding | Provided official logo asset | Integrated logo across Navbar, Login, Register and Change Password |
 | Documentation | Reviewed and approved this README | Generated initial draft |
 
 ### Tools used
