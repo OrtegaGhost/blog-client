@@ -77,16 +77,23 @@ Edit `.env` if the backend runs on a different URL. See [Environment Variables](
 
 | Variable | Default | Description |
 |---|---|---|
-| `VITE_API_URL` | `http://localhost:3000` | Base URL of the blog-api backend |
-| `VITE_SOCKET_URL` | `http://localhost:3000` | Socket.io server URL (usually same as API) |
+| `VITE_API_URL` | `/api` | API prefix — proxied by Vite to the backend (see `vite.config.js`) |
+| `VITE_SOCKET_URL` | `http://localhost:3000` | Socket.io direct URL (not proxied — real-time events don't use cookies) |
+| `VITE_ASSET_URL` | `http://localhost:3000` | Full backend URL used only to load static assets (profile photos) |
 
 > All variables must be prefixed with `VITE_` to be accessible in the browser bundle.
+>
+> `VITE_API_URL=/api` keeps the JWT cookie same-origin so `SameSite=Lax` works without HTTPS. Vite's dev server proxies every `/api/*` request to the backend automatically.
 
 **Example `.env`:**
 
 ```env
-VITE_API_URL=http://localhost:3000
+# Relative path — Vite proxies /api/* to the backend (see vite.config.js)
+VITE_API_URL=/api
+# Socket.io connects directly (not proxied — no cookies needed for real-time events)
 VITE_SOCKET_URL=http://localhost:3000
+# Full backend URL used only for loading static assets (profile photos)
+VITE_ASSET_URL=http://localhost:3000
 ```
 
 ---
@@ -164,7 +171,7 @@ Facebook-style two-panel layout:
 - **Left panel** — official brand logo and tagline
 - **Right panel** — login form (username + password)
 - Language toggle (ES / EN) in the top-right corner
-- On success: saves the JWT, fetches the user profile via `/me`, then redirects to `/feed`
+- On success: the server sets an HttpOnly cookie with the JWT; user profile is returned in the login response and saved locally; redirects to `/feed`
 - Links to the register page
 
 ### Register
@@ -258,7 +265,7 @@ blog-client/
 │   │   ├── ProtectedRoute.jsx         # Redirects unauthenticated users to /login
 │   │   └── UserAvatar.jsx             # Photo or initials fallback avatar (lazy-loaded)
 │   ├── context/
-│   │   ├── AuthContext.jsx            # JWT auth state + localStorage persistence + updateUser()
+│   │   ├── AuthContext.jsx            # Cookie-based auth state — user profile cached in localStorage, JWT in HttpOnly cookie
 │   │   ├── I18nContext.jsx            # ES/EN translations + language toggle
 │   │   └── ThemeContext.jsx           # Dark mode state — persists in localStorage, toggles <html class="dark">
 │   ├── hooks/
@@ -272,7 +279,7 @@ blog-client/
 │   ├── services/
 │   │   └── api.js                     # Axios instance + auth / feed / users API calls + assetUrl helper
 │   ├── utils/
-│   │   ├── storage.js                 # localStorage helpers (token + user)
+│   │   ├── storage.js                 # localStorage helpers for non-sensitive user profile data (JWT never stored here)
 │   │   └── timeAgo.js                 # Intl.RelativeTimeFormat i18n-aware relative time
 │   ├── App.jsx                        # Router + I18nProvider + ThemeProvider + AuthProvider
 │   ├── index.css                      # Tailwind directives + global component classes (dark: variants)
@@ -280,7 +287,7 @@ blog-client/
 ├── index.html                         # Anti-FOUC dark mode script before React hydration
 ├── .env.example
 ├── tailwind.config.js                 # Facebook blue brand color + darkMode: 'class'
-├── vite.config.js
+├── vite.config.js                     # Vite config — dev/preview proxy: /api/* → http://localhost:3000
 └── package.json
 ```
 
@@ -289,8 +296,16 @@ blog-client/
 ## Git History
 
 ```
-*   004c759 (HEAD -> main) Merge develop into main
+*   21d9959 (HEAD -> main) Merge develop into main
 |\
+| * 211aeb5 security: migrate JWT auth to HttpOnly cookie via Vite proxy
+* |   ac68219 Merge develop into main
+|\ \
+| |/
+| * 52dc640 feat: add Dockerfile for Nginx production build
+* |   004c759 Merge develop into main
+|\ \
+| |/
 | * c3e9aa0 feat: forgot password flow with security questions
 * |   f11a038 Merge develop into main
 |\ \
@@ -299,38 +314,23 @@ blog-client/
 * |   f97bb31 Merge branch 'develop'
 |\ \
 | |/
-| * 4f23f54 chore: remove dead ChangePasswordPage - functionality moved to /settings
+| * 4f23f54 chore: remove dead ChangePasswordPage — functionality moved to /settings
 * |   8883311 Merge branch 'develop'
-|\ \
-| |/
-| * f3ea3d9 fix: use logo.png as browser tab favicon
-* |   e3671fa Merge branch 'develop'
-|\ \
-| |/
-| * 75181d3 docs: update README with settings page, dark mode and profile photo upload
-* |   c0cf719 Merge branch 'develop'
 |\ \
 | |/
 | * 68f28a8 feat: settings page with dark mode, change name and delete account
 * |   fd10627 Merge branch 'develop'
 |\ \
 | |/
-| * 4d32a5d feat: UI/UX improvements - navbar, profile photo upload, activity sidebar
-* |   12f87ce merge: develop -> main (README update)
-|\ \
-| |/
-| * 86eabae docs: update README with profile page, edit/delete and threading features
+| * 4d32a5d feat: UI/UX improvements — navbar, profile photo upload, activity sidebar
 * |   f77e601 merge: develop -> main (threading, edit/delete, profile page)
 |\ \
 | |/
 | * 649ea56 feat: add profile page, comment edit/delete and reply threading
 |/
-* 1780d5b refactor: fix likes, enable comment button, i18n timeAgo, lazy images, Spanish comments
-* ba3c533 fix: allow polling fallback in Socket.io to avoid StrictMode race condition
-* 4ea71ea fix: store token before calling /me to avoid 400 on login
+* 1780d5b refactor: fix likes, enable comment button, i18n timeAgo, lazy images
 * bdb55da feat: add change-password page with Navbar link and full i18n
 * 0c1fefb feat: responsive design, Facebook blue theme, and ES/EN language selector
-* 355eeb7 docs: add comprehensive README with setup and execution instructions
 * 4488a59 feat: initial frontend setup with full UI implementation
 ```
 
