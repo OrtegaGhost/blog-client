@@ -296,13 +296,17 @@ blog-client/
 ## Git History
 
 ```
-*   21d9959 (HEAD -> main) Merge develop into main
+*   fd297c0 (HEAD -> main) Merge develop into main
 |\
+| * 6b011b3 docs: update README — env vars with Vite proxy, HttpOnly cookie auth, accurate git log
+* |   21d9959 Merge develop into main
+|\ \
+| |/
 | * 211aeb5 security: migrate JWT auth to HttpOnly cookie via Vite proxy
 * |   ac68219 Merge develop into main
 |\ \
 | |/
-| * 52dc640 feat: add Dockerfile for Nginx production build
+| * 52dc640 feat: add Dockerfile for Nginx production build + update git log
 * |   004c759 Merge develop into main
 |\ \
 | |/
@@ -318,17 +322,25 @@ blog-client/
 * |   8883311 Merge branch 'develop'
 |\ \
 | |/
+| * f3ea3d9 fix: use logo.png as browser tab favicon
+* |   e3671fa Merge branch 'develop'
+|\ \
+| |/
+| * 75181d3 docs: update README with settings page, dark mode and profile photo upload
+* |   c0cf719 Merge branch 'develop'
+|\ \
+| |/
 | * 68f28a8 feat: settings page with dark mode, change name and delete account
 * |   fd10627 Merge branch 'develop'
 |\ \
 | |/
 | * 4d32a5d feat: UI/UX improvements — navbar, profile photo upload, activity sidebar
-* |   f77e601 merge: develop -> main (threading, edit/delete, profile page)
+* |   f77e601 merge: develop → main (threading, edit/delete, profile page)
 |\ \
 | |/
 | * 649ea56 feat: add profile page, comment edit/delete and reply threading
 |/
-* 1780d5b refactor: fix likes, enable comment button, i18n timeAgo, lazy images
+* 1780d5b refactor: fix likes, enable comment button, i18n timeAgo, lazy images, Spanish comments
 * bdb55da feat: add change-password page with Navbar link and full i18n
 * 0c1fefb feat: responsive design, Facebook blue theme, and ES/EN language selector
 * 4488a59 feat: initial frontend setup with full UI implementation
