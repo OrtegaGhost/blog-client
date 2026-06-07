@@ -1,22 +1,23 @@
 import axios from 'axios';
-import { storage } from '../utils/storage';
 
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+// API calls go through the Vite proxy (/api → backend) so the browser
+// treats them as same-origin — enabling HttpOnly cookie auth (ASVS V8.2.2).
+const BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
-// Instancia de Axios preconfigurada con la URL base del backend
-const api = axios.create({ baseURL: BASE_URL });
+// Static assets (profile photos) are served directly from the backend.
+// They don't require the auth cookie so no proxy is needed.
+const ASSET_BASE_URL = import.meta.env.VITE_ASSET_URL || 'http://localhost:3000';
 
-// Adjunta el token JWT en cada peticion si existe uno en almacenamiento local
-api.interceptors.request.use((config) => {
-  const token = storage.getToken();
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
+const api = axios.create({
+  baseURL: BASE_URL,
+  withCredentials: true, // Send HttpOnly cookie on every request
 });
 
 // --- Autenticacion -------------------------------------------------------
 
 export const authApi = {
   login:               (data)     => api.post('/login', data),
+  logout:              ()         => api.post('/logout'),
   register:            (formData) => api.post('/register', formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
   }),
@@ -50,10 +51,8 @@ export const usersApi = {
 };
 
 /**
- * Convierte una ruta relativa de upload en una URL completa.
- * Retorna null si no se proporciona ruta.
- *
- * @param {string|null} path - Ruta relativa, ej: '/uploads/abc.webp'
+ * Builds an absolute URL for a backend-served static asset (profile photo, cover).
+ * @param {string|null} path - Relative path, e.g. '/uploads/abc.webp'
  * @returns {string|null}
  */
-export const assetUrl = (path) => (path ? `${BASE_URL}${path}` : null);
+export const assetUrl = (path) => (path ? `${ASSET_BASE_URL}${path}` : null);

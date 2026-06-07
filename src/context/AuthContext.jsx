@@ -5,29 +5,31 @@ import { authApi } from '../services/api';
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser]         = useState(() => storage.getUser());
-  const [token, setToken]       = useState(() => storage.getToken());
-  const [loading, setLoading]   = useState(!!storage.getToken()); // verify on mount if token exists
+  // Pre-populate from storage for instant first render (non-sensitive profile data only).
+  // JWT lives exclusively in an HttpOnly cookie — never in state or localStorage.
+  const [user, setUser]       = useState(() => storage.getUser());
+  // Only show the loading spinner when we need to validate the cookie on mount.
+  const [loading, setLoading] = useState(!!storage.getUser());
 
-  // Validate the stored token and refresh the user profile on load
   useEffect(() => {
-    if (!token) return;
+    if (!storage.getUser()) return; // no cached user → definitely not logged in
     authApi.me()
       .then(({ data }) => { setUser(data); storage.setUser(data); })
-      .catch(() => logout())
+      .catch(() => { storage.clear(); setUser(null); })
       .finally(() => setLoading(false));
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const login = useCallback((tokenData, userData) => {
-    storage.setToken(tokenData.access_token);
+  /** Called after a successful login. The JWT cookie is already set by the server. */
+  const login = useCallback((userData) => {
+    if (!userData?.id) return; // guard: never set null/undefined as authenticated user
     storage.setUser(userData);
-    setToken(tokenData.access_token);
     setUser(userData);
   }, []);
 
-  const logout = useCallback(() => {
+  /** Clears the HttpOnly cookie server-side, then wipes local profile cache. */
+  const logout = useCallback(async () => {
+    try { await authApi.logout(); } catch { /* cookie cleared client-side regardless */ }
     storage.clear();
-    setToken(null);
     setUser(null);
   }, []);
 
@@ -37,7 +39,7 @@ export const AuthProvider = ({ children }) => {
     setUser(updated);
   }, [user]);
 
-  const value = { user, token, loading, isAuthenticated: !!token, login, logout, updateUser };
+  const value = { user, loading, isAuthenticated: !!user, login, logout, updateUser };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

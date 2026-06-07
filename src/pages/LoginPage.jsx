@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { authApi } from '../services/api';
 import { useAuth }  from '../context/AuthContext';
 import { useI18n }  from '../context/I18nContext';
-import { storage }  from '../utils/storage';
 
 /**
  * Login page — Facebook-style two-panel layout.
@@ -40,13 +39,11 @@ const LoginPage = () => {
     setLoading(true);
     setError('');
     try {
-      const { data: tokenData } = await authApi.login(form);
-      storage.setToken(tokenData.access_token);
-      const { data: userData }  = await authApi.me();
-      login(tokenData, userData);
+      const { data } = await authApi.login(form); // server sets HttpOnly cookie + returns user
+      if (!data?.user) throw new Error('LOGIN_ERROR');
+      login(data.user);
       navigate('/feed');
     } catch (err) {
-      storage.clear();
       const code = err.response?.data?.error;
       if (code === 'INVALID_CREDENTIALS') setError(t('login.invalidCredentials'));
       else if (code && t(`err.${code}`) !== `err.${code}`) setError(t(`err.${code}`));
